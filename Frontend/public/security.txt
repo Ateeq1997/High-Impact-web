@@ -1,0 +1,5 @@
+# security.txt - DevEntia Tech
+
+Contact: mailto:deventialimited@gmail.com
+Policy: https://deventiatech.com/security-policy
+Preferred-languages: en

@@ -1,0 +1,12 @@
+# robots.txt - DevEntia Tech
+
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /temp/
+Disallow: /*?*     # Block query-string duplicates
+Allow: /
+
+# Sitemap
+Sitemap: https://deventiatech.com/sitemap.xml
