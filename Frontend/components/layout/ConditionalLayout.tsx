@@ -27,7 +27,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[100%] max-w-[1770px] flex items-center justify-between px-2 z-[9999]">
           {/* WhatsApp Icon */}
           <a
-            href="https://wa.me/923448967017"
+            href="https://wa.me/92312345678"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white p-3 sm:p-4 rounded-full shadow-lg transition-transform duration-300 hover:scale-110"

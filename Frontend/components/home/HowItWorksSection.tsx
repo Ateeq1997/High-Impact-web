@@ -1,7 +1,7 @@
 const steps = [
-  { title: "Select Your Field", description: "Pick the area you want to monitor on the map.", icon: "/icons/map.svg" },
-  { title: "Analyze Data", description: "Get insights on crop health, soil, and rainfall trends.", icon: "/icons/analytics.svg" },
-  { title: "Plan & Act", description: "Make informed decisions to improve crop yield.", icon: "/icons/plan.svg" },
+  { title: "Select Your Field", description: "Pick the area you want to monitor on the map.", icon: "/icons/select.png" },
+  { title: "Analyze Data", description: "Get insights on crop health, soil, and rainfall trends.", icon: "/icons/analytic.png" },
+  { title: "Plan & Act", description: "Make informed decisions to improve crop yield.", icon: "/icons/plan.png" },
 ];
 
 const HowItWorksSection = () => {
