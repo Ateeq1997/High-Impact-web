@@ -24,16 +24,16 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Services */}
-        <div>
-          <h3 className="text-lg font-bold text-blue-700 mb-4">Services</h3>
-          <ul className="space-y-2 text-sm">
-            <li><Link href="#" className="hover:text-blue-600 transition">Parcel Management</Link></li>
-            <li><Link href="#" className="hover:text-blue-600 transition">Insights & Analytics</Link></li>
-            <li><Link href="#" className="hover:text-blue-600 transition">Farm Monitoring</Link></li>
-            <li><Link href="#" className="hover:text-blue-600 transition">Support</Link></li>
-          </ul>
-        </div>
+     <div>
+  <h3 className="text-lg font-bold text-blue-700 mb-4">Services</h3>
+  <ul className="space-y-2 text-sm">
+    <li><Link href="/parcel-management" className="hover:text-blue-600 transition">Parcel Management</Link></li>
+    <li><Link href="/insights-analytics" className="hover:text-blue-600 transition">Insights & Analytics</Link></li>
+    <li><Link href="/farm-monitoring" className="hover:text-blue-600 transition">Farm Monitoring</Link></li>
+    <li><Link href="/support" className="hover:text-blue-600 transition">Support</Link></li>
+  </ul>
+</div>
+
 
         {/* Contact & Social */}
         <div>

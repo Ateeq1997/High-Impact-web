@@ -7,9 +7,15 @@ import ChartsSection from "@/components/home/ChartsSection";
 // import HowItWorks from "@/components/home/HowItWorksSection";
 // import Testimonials from "@/components/home/TestimonialSection";
 import Partner from "@/components/home/PartnersSection";
+import ValueProposition from "@/components/home/ValueProposition";
+import UseCases from "@/components/home/UseCases";
+import FeaturesSection from "@/components/home/FeaturesSection";
+import AdvantageSection from "@/components/home/AdvantageSection";
 import InteractiveMapPreview from "@/components/home/InteractiveMapPreview";
 import NewsletterSection from "@/components/home/NewsletterSection";
 // import FAQ from "@/components/home/FAQSection";
+import PricingPlans from "@/components/home/PricingPlans";
+import TimeCostComparison from "@/components/home/TimeCostComparison";
 import CallToAction from "@/components/home/CallToAction";
 import Footer from "@/components/layout/Footer";
 import Header from "@/components/layout/Header";
@@ -52,7 +58,7 @@ export default function LandingPage() {
       </section> */}
 
       {/* Cards Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <h2 className="text-3xl font-bold text-blue-700 mb-12 text-center">
           Explore Our Features
         </h2>
@@ -66,7 +72,7 @@ export default function LandingPage() {
             />
           ))}
         </div>
-      </section>
+      </section> */}
 
       {/* How It Works */}
       {/* <HowItWorks /> */}
@@ -88,17 +94,22 @@ export default function LandingPage() {
           <InteractiveMapPreview />
         </div>
       </section>
-
+      <TimeCostComparison />
+<ValueProposition />
+<UseCases />
+<FeaturesSection />
+<AdvantageSection />
       {/* Testimonials */}
       {/* <Testimonials /> */}
 
       {/* Partners */}
-      <Partner />
+      {/* <Partner /> */}
 
       {/* FAQ */}
       {/* <FAQ /> */}
 
       {/* Call to Action */}
+<PricingPlans />
       <CallToAction
         heading="Start Monitoring Your Fields Today"
         description="Sign up and explore interactive maps, crop insights, and historical geographic data."

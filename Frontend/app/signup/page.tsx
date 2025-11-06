@@ -1,6 +1,10 @@
+"use client";
+
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
+import { FcGoogle } from "react-icons/fc";
+import { FaGithub } from "react-icons/fa";
 
 export default function SignupPage() {
   return (
@@ -12,6 +16,39 @@ export default function SignupPage() {
             Sign Up
           </h2>
 
+          {/* --- Social Signup Buttons --- */}
+          <div className="space-y-3 mb-6">
+            <button
+              type="button"
+              className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded py-2 hover:bg-gray-100 transition"
+              onClick={() => alert("Google signup not yet connected")}
+            >
+              <FcGoogle size={22} />
+              <span className="text-gray-700 font-medium">
+                Continue with Google
+              </span>
+            </button>
+
+            <button
+              type="button"
+              className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded py-2 hover:bg-gray-100 transition"
+              onClick={() => alert("GitHub signup not yet connected")}
+            >
+              <FaGithub size={22} className="text-gray-800" />
+              <span className="text-gray-700 font-medium">
+                Continue with GitHub
+              </span>
+            </button>
+          </div>
+
+          {/* --- OR Divider --- */}
+          <div className="flex items-center mb-6">
+            <div className="flex-grow h-px bg-gray-300"></div>
+            <span className="mx-3 text-gray-500 text-sm">OR</span>
+            <div className="flex-grow h-px bg-gray-300"></div>
+          </div>
+
+          {/* --- Email Signup Form --- */}
           <form className="space-y-4">
             <div>
               <label className="block text-gray-700 mb-2">Full Name</label>
@@ -59,7 +96,7 @@ export default function SignupPage() {
               type="submit"
               className="w-full py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
             >
-              Sign Up
+              Sign Up with Email
             </button>
           </form>
 
@@ -71,7 +108,7 @@ export default function SignupPage() {
           </p>
         </div>
       </main>
-      <Footer />
+
     </div>
   );
 }
