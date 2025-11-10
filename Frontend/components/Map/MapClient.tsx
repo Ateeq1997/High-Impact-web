@@ -1,132 +1,174 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  LayersControl,
-  Marker,
-  Popup,
-} from "react-leaflet";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import "leaflet-geosearch/dist/geosearch.css";
 import L from "leaflet";
 
-import SearchControl from "./SearchControl";
-import ClickHandler from "./ClickHandler";
-import MapFilters from "./MapFilters";
-import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
+import SearchControl from "./SearchControl"; // working search bar
+import ChatBot from "../dashboard/map/ChatBot";
+import LayersDropdown from "@/components/dashboard/map/LayersDropdown";
+import ZoomButtons from "@/components/dashboard/map/ZoomButtons";
+import InfoProjectsPanel from "@/components/dashboard/map/InfoProjectPanel";
 
-const { BaseLayer } = LayersControl;
+// Dynamic imports for Leaflet components (client-side only)
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+const Polygon = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Polygon),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
+const Popup = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Popup),
+  { ssr: false }
+);
+
+interface Plot {
+  id: number;
+  name: string;
+  area: string;
+  coordinates: [number, number][];
+}
+
+const plots: Plot[] = [
+  {
+    id: 1,
+    name: "Plot A",
+    area: "2000 sq ft",
+    coordinates: [
+      [34.015, 71.524],
+      [34.015, 71.527],
+      [34.018, 71.527],
+      [34.018, 71.524],
+    ],
+  },
+  {
+    id: 2,
+    name: "Plot B",
+    area: "3000 sq ft",
+    coordinates: [
+      [34.018, 71.528],
+      [34.018, 71.531],
+      [34.021, 71.531],
+      [34.021, 71.528],
+    ],
+  },
+];
+
+const baseLayers: Record<string, string> = {
+  Streets: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  Terrain: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+  Satellite:
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+  Dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png",
+  Light: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png",
+};
 
 export default function MapClient() {
   const [map, setMap] = useState<L.Map | null>(null);
+  const [baseMap, setBaseMap] = useState("Streets");
+  const [selectedPlot, setSelectedPlot] = useState<Plot | null>(null);
+  const [markerPosition, setMarkerPosition] = useState<[number, number] | null>(null);
+  const [popupPosition, setPopupPosition] = useState<[number, number] | null>(null);
+  const [popupContent, setPopupContent] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showChat, setShowChat] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const [showProjects, setShowProjects] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-  // ✅ Search bar fix & styling
+  // Enable client rendering
+  useEffect(() => setIsClient(true), []);
+
+  // Map click to show popup with coordinates
   useEffect(() => {
     if (!map) return;
 
-    const provider = new OpenStreetMapProvider();
- const searchControl = new GeoSearchControl({
-  provider,
-  style: "bar",
-  showMarker: true,
-  autoClose: true,
-  searchLabel: "Search for a location...",
-  retainZoomLevel: false,
-  animateZoom: true,
-  keepResult: true,
-} as any); // 👈 fixes TS underline
+    const handleMapClick = (e: L.LeafletMouseEvent) => {
+      const { lat, lng } = e.latlng;
+      setPopupPosition([lat, lng]);
+      setPopupContent(`Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+    };
 
-
-    map.addControl(searchControl);
-
-    // Style override for leaflet-geosearch input
-    const searchBox = document.querySelector(
-      ".leaflet-control-geosearch form input"
-    ) as HTMLElement | null;
-    if (searchBox) {
-      Object.assign(searchBox.style, {
-        color: "#000",
-        background: "#fff",
-        border: "1px solid #ccc",
-        padding: "6px 10px",
-        borderRadius: "6px",
-        outline: "none",
-        fontSize: "14px",
-        width: "250px",
-        zIndex: "1000",
-      });
-    }
-
-    const suggestions = document.querySelector(
-      ".leaflet-control-geosearch .results"
-    ) as HTMLElement | null;
-    if (suggestions) {
-      Object.assign(suggestions.style, {
-        color: "#000",
-        background: "#fff",
-        border: "1px solid #ddd",
-        borderRadius: "6px",
-        overflow: "hidden",
-      });
-    }
-
+    map.on("click", handleMapClick);
     return () => {
-      map.removeControl(searchControl);
+      map.off("click", handleMapClick);
     };
   }, [map]);
 
   return (
-    <div className="relative w-full h-[calc(100vh-64px)]">
-      {map && <MapFilters map={map} />}
-
- <MapContainer
-  center={[30.3753, 69.3451]}
-  zoom={6}
-  scrollWheelZoom
-  className="w-full h-full rounded-lg shadow-lg"
-  whenCreated={(mapInstance: L.Map) => setMap(mapInstance)}
+    <div className="relative h-[90vh] w-full">
+      {isClient && (
+       <MapContainer
+  whenCreated={setMap}
+  center={[34.015, 71.524]}
+  zoom={15}
+  className="h-full w-full z-0"
+  zoomControl={false}
 >
+  <TileLayer url={baseLayers[baseMap]} attribution="&copy; OpenStreetMap contributors" />
 
-        <SearchControl />
-        <ClickHandler />
+  {/* Polygons */}
+  {plots.map((plot) => (
+    <Polygon
+      key={plot.id}
+      positions={plot.coordinates}
+      eventHandlers={{ click: () => setSelectedPlot(plot) }}
+      pathOptions={{
+        color: selectedPlot?.id === plot.id ? "blue" : "green",
+        fillOpacity: selectedPlot?.id === plot.id ? 0.6 : 0.4,
+      }}
+    />
+  ))}
 
-        <LayersControl position="topright">
-          <BaseLayer checked name="OpenStreetMap">
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            />
-          </BaseLayer>
+  {/* Marker for search */}
+  {markerPosition && (
+    <Marker position={markerPosition}>
+      <Popup>{searchQuery || "Selected Location"}</Popup>
+    </Marker>
+  )}
 
-          <BaseLayer name="Satellite (Esri)">
-            <TileLayer
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-              attribution="Tiles © Esri"
-            />
-          </BaseLayer>
+  {/* Popup for map click */}
+  {popupPosition && <Popup position={popupPosition}>{popupContent}</Popup>}
 
-          <BaseLayer name="Terrain">
-            <TileLayer
-              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-              attribution="© OpenTopoMap contributors"
-            />
-          </BaseLayer>
+  {/* Search bar */}
+  <SearchControl
+    setMarkerPosition={setMarkerPosition}
+    searchQuery={searchQuery}
+    setSearchQuery={setSearchQuery}
+  />
 
-          <BaseLayer name="Agriculture / HOT">
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-              attribution="© OpenStreetMap contributors, HOT"
-            />
-          </BaseLayer>
-        </LayersControl>
+  {/* Zoom buttons (inside MapContainer!) */}
+  <ZoomButtons />
+</MapContainer>
 
-        {/* Example marker */}
-        <Marker position={[30.3753, 69.3451]}>
-          <Popup>📍 Pakistan — Example Marker</Popup>
-        </Marker>
-      </MapContainer>
+      )}
+
+      {/* Layers dropdown */}
+      <LayersDropdown baseMap={baseMap} setBaseMap={setBaseMap} />
+
+      {/* Info projects panel */}
+      <InfoProjectsPanel
+        showInfo={showInfo}
+        setShowInfo={setShowInfo}
+        showProjects={showProjects}
+        setShowProjects={setShowProjects}
+        selectedPlot={selectedPlot}
+      />
+
+      {/* Chatbot */}
+      <ChatBot showChat={showChat} setShowChat={setShowChat} />
     </div>
   );
 }
