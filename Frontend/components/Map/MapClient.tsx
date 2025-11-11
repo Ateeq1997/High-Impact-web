@@ -7,10 +7,10 @@ import "leaflet-geosearch/dist/geosearch.css";
 import L from "leaflet";
 
 import SearchControl from "./SearchControl"; // working search bar
-import ChatBot from "../dashboard/map/ChatBot";
-import LayersDropdown from "@/components/dashboard/map/LayersDropdown";
-import ZoomButtons from "@/components/dashboard/map/ZoomButtons";
-import InfoProjectsPanel from "@/components/dashboard/map/InfoProjectPanel";
+import ChatBot from "./ChatBot";
+import LayersDropdown from "./LayersDropdown";
+import ZoomButtons from "./ZoomButtons";
+import InfoProjectsPanel from "./InfoProjectPanel";
 
 // Dynamic imports for Leaflet components (client-side only)
 const MapContainer = dynamic(

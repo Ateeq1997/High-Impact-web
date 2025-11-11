@@ -1,7 +1,7 @@
 "use client";
 
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import Operators from "@/components/dashboard/operators/operators1";
+import Operators from "@/components/operators/operators1";
 
 export default function Map() {
   return (

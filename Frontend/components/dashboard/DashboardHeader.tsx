@@ -19,7 +19,7 @@ const DashboardHeader = () => {
         <nav className="hidden md:flex space-x-4 ml-12 items-center">
           {[
             { href: "/map1", label: "Map", Icon: Map },
-            { href: "/projects", label: "Projects", Icon: FolderKanban },
+            { href: "/projects-board", label: "Projects", Icon: FolderKanban },
             { href: "/all", label: "All", Icon: List },
             { href: "/operators", label: "Operator List", Icon: Users },
             { href: "/homes", label: "Home List", Icon: Home },
@@ -56,7 +56,7 @@ const DashboardHeader = () => {
         <nav className="md:hidden bg-white shadow-md px-4 pt-2 pb-4 space-y-2">
           {[
             { href: "/map1", label: "Map", Icon: Map },
-            { href: "/projects", label: "Projects", Icon: FolderKanban },
+            { href: "/projects-board", label: "Projects", Icon: FolderKanban },
             { href: "/all", label: "All", Icon: List },
             { href: "/operators", label: "Operator List", Icon: Users },
             { href: "/homes", label: "Home List", Icon: Home },

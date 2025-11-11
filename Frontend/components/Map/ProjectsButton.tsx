@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { FolderKanban } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation"; // App Router
 
 export default function ProjectsButton() {
   const [showProjects, setShowProjects] = useState(false);
+  const router = useRouter();
 
   const projects = [
     { id: 1, name: "Green Valley Phase 1", location: "Sector A" },
@@ -49,18 +51,20 @@ export default function ProjectsButton() {
                   key={project.id}
                   className="border border-gray-200 rounded-lg p-3 bg-gray-50 hover:shadow transition"
                 >
-                  <h4 className="font-semibold text-gray-800">
-                    {project.name}
-                  </h4>
-                  <p className="text-sm text-gray-600 mb-3">
-                    {project.location}
-                  </p>
+                  <h4 className="font-semibold text-gray-800">{project.name}</h4>
+                  <p className="text-sm text-gray-600 mb-3">{project.location}</p>
 
                   <div className="flex justify-between">
-                    <button className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700">
+                    <button
+                      className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
+                      onClick={() => router.push("/projects-board")}
+                    >
                       Open
                     </button>
-                    <button className="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50">
+                    <button
+                      className="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
+                      onClick={() => router.push("/map1")}
+                    >
                       Show in Map
                     </button>
                   </div>
@@ -70,7 +74,10 @@ export default function ProjectsButton() {
 
             {/* Projects Board Button */}
             <div className="mt-4 text-center">
-              <button className="w-full px-4 py-2 bg-black text-white font-semibold rounded hover:bg-blue-600 transition">
+              <button
+                className="w-full px-4 py-2 bg-black text-white font-semibold rounded hover:bg-blue-600 transition"
+                onClick={() => router.push("/projects-board")}
+              >
                 Projects Board
               </button>
             </div>
