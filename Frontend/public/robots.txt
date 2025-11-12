@@ -1,4 +1,4 @@
-# robots.txt - DevEntia Tech
+# robots.txt - High Impact
 
 User-agent: *
 Disallow: /admin/
@@ -9,4 +9,4 @@ Disallow: /*?*     # Block query-string duplicates
 Allow: /
 
 # Sitemap
-Sitemap: https://deventiatech.com/sitemap.xml
+Sitemap: https://highimpact.com/sitemap.xml

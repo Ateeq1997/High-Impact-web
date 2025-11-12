@@ -1,5 +1,5 @@
-# security.txt - DevEntia Tech
+# security.txt - High Impact
 
-Contact: mailto:deventialimited@gmail.com
-Policy: https://deventiatech.com/security-policy
+Contact: mailto:highimpact@gmail.com
+Policy: https://highimpact.com/security-policy
 Preferred-languages: en

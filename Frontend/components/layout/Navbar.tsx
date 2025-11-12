@@ -225,7 +225,7 @@ const Navbar = () => {
           unoptimized
           src={logoImg}
           width={100}
-          alt="deventia logo"
+          alt="highimpact logo"
           className=" mr-auto"
         />
       </div>

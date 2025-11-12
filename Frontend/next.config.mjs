@@ -9,11 +9,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'devapi.deventiatech.com',
+        hostname: 'highimpact.com',
       },
       {
         protocol: 'https',
-        hostname: 'api.deventiatech.com',
+        hostname: 'api.highimpact.com',
       },
       {
         protocol: 'http',
@@ -28,8 +28,8 @@ const nextConfig = {
       "i.ibb.co",
       "l-ldesign.com.au",
       "res.cloudinary.com",
-      "devapi.deventiatech.com",
-      "api.deventiatech.com",
+      "devapi.highimpact.com",
+      "api.highimpact.com",
       "localhost",
       "127.0.0.1",
     ],

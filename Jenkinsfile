@@ -4,8 +4,8 @@
 //     environment {
 //         // Set environment based on branch
 //         ENV_NAME = "${env.BRANCH_NAME == 'production' ? 'prod' : 'dev'}"
-//         DEPLOY_DIR = "${env.BRANCH_NAME == 'production' ? '/var/www/devEntiaWebsite' : '/var/www/devEntiaWebsite-dev'}"
-//         COMPOSE_PROJECT_NAME = "${env.BRANCH_NAME == 'production' ? 'deventia-website-version-02' : 'deventia-website-dev'}"
+//         DEPLOY_DIR = "${env.BRANCH_NAME == 'production' ? '/var/www/highimpactWebsite' : '/var/www/highimpactWebsite-dev'}"
+//         COMPOSE_PROJECT_NAME = "${env.BRANCH_NAME == 'production' ? 'highimpact-website-version-02' : 'highimpact-website-dev'}"
 //         COMPOSE_FILE = "${DEPLOY_DIR}/docker-compose.yml"
 //         BUILD_TAG = "build-${BUILD_NUMBER}"
         
@@ -14,7 +14,7 @@
 //         FRONTEND_PORT = "${env.BRANCH_NAME == 'production' ? '3000' : '3001'}"
         
 //         // Different env files for different environments
-//         ENV_FILE_PATH = "${env.BRANCH_NAME == 'production' ? '/home/ubuntu/deventia/.env' : '/home/ubuntu/deventia/.env'}"
+//         ENV_FILE_PATH = "${env.BRANCH_NAME == 'production' ? '/home/ubuntu/highimpact/.env' : '/home/ubuntu/highimpact/.env'}"
 //     }
 
 //     stages {
@@ -25,7 +25,7 @@
 //                     extensions: [],
 //                     userRemoteConfigs: [[
 //                         credentialsId: 'abdul_git_repo_credentials',
-//                         url: 'https://github.com/deventialimited/deventia-website-version-02.git'
+//                         url: 'https://github.com/highimpactlimited/highimpact-website-version-02.git'
 //                     ]]
 //                 )
 //             }
@@ -90,7 +90,7 @@
 //       target: ${ENV_NAME}
 //       args:
 //         NODE_ENV: ${ENV_NAME == 'prod' ? 'production' : 'development'}
-//     container_name: deventia_backend_${ENV_NAME}
+//     container_name: highimpact_backend_${ENV_NAME}
 //     ports:
 //       - "${BACKEND_PORT}:4000"
 //     restart: always
@@ -110,7 +110,7 @@
 //       target: ${ENV_NAME}
 //       args:
 //         NODE_ENV: ${ENV_NAME == 'prod' ? 'production' : 'development'}
-//     container_name: deventia_frontend_${ENV_NAME}
+//     container_name: highimpact_frontend_${ENV_NAME}
 //     ports:
 //       - "${FRONTEND_PORT}:3000"
 //     restart: always
@@ -163,8 +163,8 @@
 //                 script {
 //                     sh """
 //                         # Check if containers are running and healthy
-//                         BACKEND_HEALTH=\$(docker inspect --format='{{.State.Health.Status}}' deventia_backend_${ENV_NAME})
-//                         FRONTEND_HEALTH=\$(docker inspect --format='{{.State.Health.Status}}' deventia_frontend_${ENV_NAME})
+//                         BACKEND_HEALTH=\$(docker inspect --format='{{.State.Health.Status}}' highimpact_backend_${ENV_NAME})
+//                         FRONTEND_HEALTH=\$(docker inspect --format='{{.State.Health.Status}}' highimpact_frontend_${ENV_NAME})
                         
 //                         echo "Backend health: \$BACKEND_HEALTH"
 //                         echo "Frontend health: \$FRONTEND_HEALTH"

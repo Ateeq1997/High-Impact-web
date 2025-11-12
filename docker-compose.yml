@@ -8,13 +8,13 @@
 #       target: prod
 #       args:
 #         NODE_ENV: production
-#     container_name: deventia_backend
+#     container_name: highimpact_backend
 #     ports:
 #       - "4000:4000"
 #     restart: always
 #     env_file:
 #       # for production
-#       - /home/ubuntu/deventia/.env
+#       - /home/ubuntu/highimpact/.env
 #       # for local development
 #       #  - ./Backend/.env
 #     healthcheck:
@@ -31,7 +31,7 @@
 #       target: prod
 #       args:
 #         NODE_ENV: production
-#     container_name: deventia_frontend
+#     container_name: highimpact_frontend
 #     ports:
 #       - "3000:3000"
 #     restart: always

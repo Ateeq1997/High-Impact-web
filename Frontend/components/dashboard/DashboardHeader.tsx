@@ -20,7 +20,6 @@ const DashboardHeader = () => {
           {[
             { href: "/map1", label: "Map", Icon: Map },
             { href: "/projects-board", label: "Projects", Icon: FolderKanban },
-            { href: "/all", label: "All", Icon: List },
             { href: "/operators", label: "Operator List", Icon: Users },
             { href: "/homes", label: "Home List", Icon: Home },
             { href: "/accounts", label: "Accounts", Icon: UserCircle },
@@ -57,7 +56,6 @@ const DashboardHeader = () => {
           {[
             { href: "/map1", label: "Map", Icon: Map },
             { href: "/projects-board", label: "Projects", Icon: FolderKanban },
-            { href: "/all", label: "All", Icon: List },
             { href: "/operators", label: "Operator List", Icon: Users },
             { href: "/homes", label: "Home List", Icon: Home },
             { href: "/accounts", label: "Accounts", Icon: UserCircle },
