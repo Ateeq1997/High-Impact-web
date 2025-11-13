@@ -20,8 +20,8 @@ const DashboardHeader = () => {
           {[
             { href: "/map1", label: "Map", Icon: Map },
             { href: "/projects-board", label: "Projects", Icon: FolderKanban },
-            { href: "/operators", label: "Operator List", Icon: Users },
-            { href: "/homes", label: "Home List", Icon: Home },
+            { href: "/operators", label: "Farm Lists", Icon: Users },
+            { href: "/homes", label: "Home Lists", Icon: Home },
             { href: "/accounts", label: "Accounts", Icon: UserCircle },
           ].map(({ href, label, Icon }) => (
             <Link
@@ -56,8 +56,8 @@ const DashboardHeader = () => {
           {[
             { href: "/map1", label: "Map", Icon: Map },
             { href: "/projects-board", label: "Projects", Icon: FolderKanban },
-            { href: "/operators", label: "Operator List", Icon: Users },
-            { href: "/homes", label: "Home List", Icon: Home },
+            { href: "/operators", label: "Farm Lists", Icon: Users },
+            { href: "/homes", label: "Home Lists", Icon: Home },
             { href: "/accounts", label: "Accounts", Icon: UserCircle },
           ].map(({ href, label, Icon }) => (
             <Link
