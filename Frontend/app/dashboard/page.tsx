@@ -1,7 +1,8 @@
 "use client";
 
 import CardPlaceholder from "@/components/home/CardPlaceholder";
-import Header from "@/components/layout/Header";
+// import Header from "@/components/layout/Header";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import Footer from "@/components/layout/Footer";
 import {
   LineChart,
@@ -60,7 +61,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
+      <DashboardHeader />
       <main className="flex-grow mt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
         {/* Dashboard Header */}
         <div>
