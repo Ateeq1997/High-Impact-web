@@ -2,14 +2,10 @@
 
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 export default function AlphaUserPage() {
   const router = useRouter();
-  const [openIndex, setOpenIndex] = useState(null);
-  const toggle = (index) => setOpenIndex(openIndex === index ? null : index);
 
   const faqData = [
     {
@@ -43,81 +39,59 @@ export default function AlphaUserPage() {
   ];
 
   return (
-    <><DashboardHeader />
-    <div className="min-h-screen bg-gray-50 px-8 py-20">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Account</h1>
+    <>
+      <DashboardHeader />
+      <div className="min-h-screen bg-gray-50 px-8 py-20">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Account</h1>
 
-      {/* User Buttons */}
-      <div className="flex gap-4 mb-8">
-        <button className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800">
-          Alpha User
-        </button>
-        <button
-          onClick={() => router.push("/accounts/beta")}
-          className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
-        >
-          Beta User
-        </button>
-      </div>
+        {/* User Buttons */}
+        <div className="flex gap-4 mb-8">
+          <button className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800">
+            Alpha User
+          </button>
+          <button
+            onClick={() => router.push("/accounts/beta")}
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+          >
+            Beta User
+          </button>
+        </div>
 
-      <p className="text-gray-600 mb-6">
-        Welcome, <span className="font-semibold">Alpha User</span>!
-        You have early access to advanced land management tools.
-      </p>
+        <p className="text-gray-600 mb-6">
+          Welcome, <span className="font-semibold">Alpha User</span>!
+          You have early access to advanced land management tools.
+        </p>
 
-      {/* Accordion Section */}
-      <div className="space-y-6">
-        {faqData.map((section, sectionIndex) => (
-          <div key={sectionIndex} className="bg-white shadow-md rounded-xl p-5">
-            <h2 className="text-xl font-semibold mb-3 text-gray-800">{section.section}</h2>
-            <div className="space-y-3">
-              {section.items.map((item, itemIndex) => {
-                const index = `${sectionIndex}-${itemIndex}`;
-                const isOpen = openIndex === index;
-                return (
-                  <div key={index}>
-                    <button
-                      onClick={() => toggle(index)}
-                      className="flex justify-between items-center w-full text-left text-gray-700 font-medium"
-                    >
-                      {item.question}
-                      {isOpen ? (
-                        <ChevronUp className="w-5 h-5 text-gray-700" />
-                      ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-700" />
-                      )}
-                    </button>
-                    <AnimatePresence>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="mt-2 text-sm text-gray-600 border-l-2 border-green-700 pl-3"
-                        >
-                          {item.answer}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+        {/* FAQ Sections */}
+        <div className="space-y-6">
+          {faqData.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="bg-white shadow-md rounded-xl p-5">
+              <h2 className="text-xl font-semibold mb-3 text-gray-800">{section.section}</h2>
+              <div className="space-y-3">
+                {section.items.map((item, itemIndex) => (
+                  <div key={itemIndex}>
+                    <p className="font-medium text-gray-700">{item.question}</p>
+                    <div className="mt-1 text-sm text-gray-600 border-l-2 border-green-700 pl-3">
+                      {item.answer}
+                    </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <p className="text-sm text-gray-500 mt-10">
-        By using FarmConnect, you agree to our{" "}
-        <span className="text-green-700 underline cursor-pointer">Terms</span> and{" "}
-        <span className="text-green-700 underline cursor-pointer">Privacy Policy</span>.
-      </p>
+        <p className="text-sm text-gray-500 mt-10">
+          By using FarmConnect, you agree to our{" "}
+          <span className="text-green-700 underline cursor-pointer">Terms</span> and{" "}
+          <span className="text-green-700 underline cursor-pointer">Privacy Policy</span>.
+        </p>
 
-      <div className="mt-10 flex items-center gap-2 text-red-600 cursor-pointer hover:text-red-700">
-        <LogOut className="w-5 h-5" />
-        <span className="font-medium">Logout</span>
+        <div className="mt-10 flex items-center gap-2 text-red-600 cursor-pointer hover:text-red-700">
+          <LogOut className="w-5 h-5" />
+          <span className="font-medium">Logout</span>
+        </div>
       </div>
-    </div></>
+    </>
   );
 }

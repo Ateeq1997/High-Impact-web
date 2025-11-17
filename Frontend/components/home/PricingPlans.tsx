@@ -1,43 +1,43 @@
+"use client";
 import React from "react";
 
 const plans = [
   {
     name: "Freemium",
     price: "Free",
-    description:
-      "Perfect for individuals exploring AI-driven real estate insights.",
+    description: "A starter plan for basic access to digital farm tools.",
     features: [
-      "Basic property search",
-      "Limited analytics tools",
+      "Basic farm map viewer",
+      "Limited parcel insights",
       "Community support",
-      "1 user only",
+      "Single user access",
     ],
-    buttonText: "Start for Free",
+    buttonText: "Start Free",
   },
   {
     name: "Pro",
-    price: "$79 / month",
+    price: "₨ 4,999 / month",
     description:
-      "For professionals and small teams optimizing investment workflows.",
+      "Best for serious farmers needing detailed mapping and insights.",
     features: [
-      "Advanced analytics dashboard",
-      "Custom catchment areas",
-      "Full AI property evaluator",
-      "Priority email support",
+      "Full analytics dashboard",
+      "Advanced map tools",
+      "NDVI & soil insights",
+      "Priority support",
       "Up to 5 users",
     ],
-    buttonText: "Get Started",
+    buttonText: "Upgrade Now",
   },
   {
     name: "Enterprise",
-    price: "Custom",
+    price: "Contact for Pricing",
     description:
-      "Tailored AI tools for large organizations and property operators.",
+      "For large operations needing custom geospatial setups and unlimited access.",
     features: [
-      "Unlimited data access",
-      "API integrations",
-      "Dedicated account manager",
-      "On-premise or private cloud setup",
+      "Unlimited mapping & analytics",
+      "Private cloud or on-premise setup",
+      "API access",
+      "Dedicated success manager",
       "Unlimited users",
     ],
     buttonText: "Contact Sales",
@@ -50,52 +50,91 @@ const PricingPlans: React.FC = () => {
       <h2 className="text-3xl font-bold text-blue-700 mb-4">
         Choose Your Plan
       </h2>
+
       <p className="text-gray-700 max-w-3xl mx-auto mb-12">
-        Flexible pricing for every level of real estate professional — from
-        curious individuals to enterprise-scale operators.
+        Affordable pricing for farmers, agritech teams, and large-scale
+        agricultural operators.
       </p>
 
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {plans.map((plan, index) => (
           <div
             key={index}
-            className={`p-8 rounded-2xl shadow-lg hover:shadow-2xl transition border ${
-              index === 1
-                ? "border-blue-700 bg-blue-50"
-                : "border-gray-200 bg-white"
-            }`}
+            className="
+              group 
+              p-8 
+              rounded-2xl 
+              shadow-lg 
+              border border-gray-200 
+              bg-white 
+              transition 
+              duration-300 
+              hover:scale-105 
+              hover:bg-blue-100 
+              hover:shadow-2xl
+              flex 
+              flex-col
+            "
           >
-            <h3 className="text-2xl font-semibold text-blue-700 mb-2">
+            {/* Title */}
+            <h3
+              className="
+                text-2xl 
+                font-semibold 
+                mb-2 
+                text-black
+                group-hover:text-blue-700
+              "
+            >
               {plan.name}
             </h3>
 
-            {/* ✅ Ensure price text is visible */}
+            {/* Price */}
             <p
-              className={`text-3xl font-bold mb-4 ${
-                index === 1 ? "text-blue-800" : "text-blue-700"
-              }`}
+              className="
+                text-3xl 
+                font-bold 
+                mb-4 
+                text-black
+                group-hover:text-blue-700
+              "
             >
               {plan.price}
             </p>
 
-            <p className="text-gray-700 mb-6">{plan.description}</p>
+            {/* Description */}
+            <p className="text-gray-700 group-hover:text-blue-700 mb-6">
+              {plan.description}
+            </p>
 
-            <ul className="text-left text-gray-700 space-y-2 mb-6">
+            {/* Features */}
+            <ul className="text-left space-y-2 mb-6 flex-grow">
               {plan.features.map((feature, i) => (
                 <li key={i} className="flex items-center gap-2">
-                  <span className="text-green-600 font-bold">✓</span>
-                  <span>{feature}</span>
+                  <span className="font-bold text-green-600 group-hover:text-green-600">
+                    ✓
+                  </span>
+                  <span className="text-black group-hover:text-blue-700">
+                    {feature}
+                  </span>
                 </li>
               ))}
             </ul>
 
+            {/* Button */}
             <a
               href="#"
-              className={`block px-6 py-3 rounded font-semibold transition ${
-                index === 1
-                  ? "bg-blue-700 text-white hover:bg-blue-800"
-                  : "bg-gray-100 text-blue-700 hover:bg-gray-200"
-              }`}
+              className="
+                block 
+                px-6 py-3 
+                rounded 
+                font-semibold 
+                text-white 
+                bg-blue-400 
+                group-hover:bg-blue-700 
+                group-hover:text-white
+                transition
+              "
             >
               {plan.buttonText}
             </a>
