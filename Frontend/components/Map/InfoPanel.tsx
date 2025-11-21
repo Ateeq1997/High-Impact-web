@@ -5,17 +5,31 @@ import { X, Minus, ChevronDown, ChevronUp } from "lucide-react";
 
 type Props = {
   selectedPlot: any;
-  onClose?: () => void;
-  onMinimize?: () => void;
 };
 
-export default function InfoPanel({ selectedPlot, onClose, onMinimize }: Props) {
+export default function InfoPanel({ selectedPlot }: Props) {
   const [openSection, setOpenSection] = useState<string | null>(null);
- const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
+
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
   };
+
+  const handleClose = () => setIsClosed(true);
+  const handleMinimize = () => setIsMinimized(!isMinimized);
+
+  if (isClosed) return null;
+
+  if (isMinimized) {
+    return (
+      <div className="absolute right-6 top-6 w-40 bg-white border border-gray-200 shadow-lg rounded-lg p-2 z-50 text-black flex justify-center">
+        <button onClick={handleMinimize} className="p-1 rounded hover:bg-gray-100">
+          <ChevronDown className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
 
   if (!selectedPlot) {
     return (
@@ -23,10 +37,10 @@ export default function InfoPanel({ selectedPlot, onClose, onMinimize }: Props) 
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold">Property Info</h3>
           <div className="flex items-center gap-2">
-            <button onClick={() => onMinimize?.()} className="p-1 rounded hover:bg-gray-100">
+            <button onClick={handleMinimize} className="p-1 rounded hover:bg-gray-100">
               <Minus className="w-4 h-4" />
             </button>
-            <button onClick={() => onClose?.()} className="p-1 rounded hover:bg-gray-100">
+            <button onClick={handleClose} className="p-1 rounded hover:bg-gray-100">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -37,8 +51,7 @@ export default function InfoPanel({ selectedPlot, onClose, onMinimize }: Props) 
   }
 
   return (
-<aside className="absolute top-6 left-1/2 transform -translate-x-[90%] w-[500px] max-w-[95vw] bg-white border border-gray-200 shadow-2xl rounded-lg overflow-hidden z-50 text-black">
-
+    <aside className="absolute top-6 left-1/2 transform -translate-x-[90%] w-[500px] max-w-[95vw] bg-white border border-gray-200 shadow-2xl rounded-lg overflow-hidden z-50 text-black">
       {/* Header */}
       <div className="flex justify-between items-start p-4 border-b">
         <div>
@@ -48,10 +61,10 @@ export default function InfoPanel({ selectedPlot, onClose, onMinimize }: Props) 
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => onMinimize?.()} className="p-1 rounded hover:bg-gray-100">
+          <button onClick={handleMinimize} className="p-1 rounded hover:bg-gray-100">
             <Minus className="w-4 h-4 text-black" />
           </button>
-          <button onClick={() => onClose?.()} className="p-1 rounded hover:bg-gray-100">
+          <button onClick={handleClose} className="p-1 rounded hover:bg-gray-100">
             <X className="w-4 h-4 text-black" />
           </button>
         </div>
@@ -118,6 +131,11 @@ export default function InfoPanel({ selectedPlot, onClose, onMinimize }: Props) 
                 <div><strong>Price per Sq Ft:</strong> £ 296</div>
                 <div><strong>Average Rent:</strong> £ 240</div>
                 <div><strong>Sales per Month:</strong> 37</div>
+                <div><strong>Median Price:</strong> £ 310,000</div>
+                <div><strong>Highest Price:</strong> £ 1,200,000</div>
+                <div><strong>Lowest Price:</strong> £ 180,000</div>
+                <div><strong>Average Days on Market:</strong> 42</div>
+                <div><strong>Rental Yield:</strong> 5.2%</div>
 
                 <div className="mt-2">
                   <div className="font-semibold mb-1">Average Price Over Time (placeholder chart)</div>
@@ -127,11 +145,15 @@ export default function InfoPanel({ selectedPlot, onClose, onMinimize }: Props) 
                 <div className="mt-2">
                   <div className="font-semibold mb-1">Growth & Performance</div>
                   {[
-                    { label: "Average Yield", value: 82.7 },
-                    { label: "1 Year Growth", value: 68.5 },
-                    { label: "3 Year Growth", value: 51.2 },
-                    { label: "5 Year Growth", value: 39.7 },
-                    { label: "7 Year Growth", value: 20.1 },
+                    { label: "Average Yield", value: 82.7, color: "bg-blue-500" },
+                    { label: "1 Year Growth", value: 68.5, color: "bg-green-500" },
+                    { label: "3 Year Growth", value: 51.2, color: "bg-purple-500" },
+                    { label: "5 Year Growth", value: 39.7, color: "bg-orange-500" },
+                    { label: "7 Year Growth", value: 20.1, color: "bg-red-500" },
+                    { label: "10 Year Growth", value: 12.4, color: "bg-yellow-500" },
+                    { label: "Rental Growth", value: 33.8, color: "bg-pink-500" },
+                    { label: "Capital Appreciation", value: 45.6, color: "bg-teal-500" },
+                    { label: "Market Volatility", value: 8.9, color: "bg-gray-500" },
                   ].map((item, idx) => (
                     <div key={idx} className="mb-1">
                       <div className="flex justify-between text-xs">
@@ -140,7 +162,7 @@ export default function InfoPanel({ selectedPlot, onClose, onMinimize }: Props) 
                       </div>
                       <div className="w-full h-2 bg-gray-200 rounded">
                         <div
-                          className="h-2 bg-blue-500 rounded"
+                          className={`h-2 rounded ${item.color}`}
                           style={{ width: `${Math.max(item.value, 0)}%` }}
                         ></div>
                       </div>
@@ -254,4 +276,4 @@ export default function InfoPanel({ selectedPlot, onClose, onMinimize }: Props) 
       </div>
     </aside>
   );
-} 
+}

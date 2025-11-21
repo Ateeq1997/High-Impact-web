@@ -2,7 +2,8 @@
 
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 // impomaprt MapView from "@/components/dashboard/map/MapView";
-import MapClient from "@/components/Map/MapClient";
+// import MapClient from "@/components/Map/MapClient";
+import FarmMap from "@/components/Map/FarmMap";
 
 export default function Map() {
   return (
@@ -13,7 +14,8 @@ export default function Map() {
       {/* Map section — added margin to make header visible */}
       <main className="flex-grow mt-16">
         {/* <MapView /> */}
-        <MapClient />
+        {/* <MapClient /> */}
+        <FarmMap />
       </main>
     </div>
   );

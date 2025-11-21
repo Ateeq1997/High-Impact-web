@@ -21,6 +21,7 @@ const TileLayer = dynamic(
   () => import("react-leaflet").then((mod) => mod.TileLayer),
   { ssr: false }
 );
+// Polygon import already declared above, remove duplicate
 const Polygon = dynamic(
   () => import("react-leaflet").then((mod) => mod.Polygon),
   { ssr: false }
@@ -33,12 +34,18 @@ const Popup = dynamic(
   () => import("react-leaflet").then((mod) => mod.Popup),
   { ssr: false }
 );
+const GeoJSON = dynamic(
+  () => import("react-leaflet").then((mod) => mod.GeoJSON),
+  { ssr: false }
+);
 
 interface Plot {
-  id: number;
+  id: number | string;
   name: string;
   area: string;
   coordinates: [number, number][];
+  owner?: string;
+  crop?: string;
 }
 
 const plots: Plot[] = [
@@ -63,7 +70,7 @@ const plots: Plot[] = [
       [34.021, 71.531],
       [34.021, 71.528],
     ],
-  },
+  }
 ];
 
 const baseLayers: Record<string, string> = {
@@ -87,6 +94,38 @@ export default function MapClient() {
   const [showInfo, setShowInfo] = useState(false);
   const [showProjects, setShowProjects] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [farmData, setFarmData] = useState<any>(null);
+
+useEffect(() => {
+  async function loadFarms() {
+    const query = `
+      [out:json][timeout:100];
+      (
+        way["landuse"="farmland"](23.5, 60.5, 37.1, 77.5);
+      );
+      (._;>;);
+      out body;
+    `;
+
+    const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+
+    try {
+      const response = await fetch(url);
+      const osmJson = await response.json();
+
+      // Convert OSM → GeoJSON
+      const osmtogeojson = (await import("osmtogeojson")).default;
+      const geo = osmtogeojson(osmJson);
+
+      setFarmData(geo);
+    } catch (error) {
+      console.error("Farm loading failed:", error);
+    }
+  }
+
+  loadFarms();
+}, []);
+
 
   // Enable client rendering
   useEffect(() => setIsClient(true), []);
@@ -110,48 +149,73 @@ export default function MapClient() {
   return (
     <div className="relative h-[90vh] w-full">
       {isClient && (
+
        <MapContainer
-  whenCreated={setMap}
-  center={[34.015, 71.524]}
-  zoom={15}
-  className="h-full w-full z-0"
-  zoomControl={false}
->
-  <TileLayer url={baseLayers[baseMap]} attribution="&copy; OpenStreetMap contributors" />
+         whenReady={() => setMap}
+         center={[34.015, 71.524]}
+         zoom={15}
+         className="h-full w-full z-0"
+         zoomControl={false}
+       >
+         <TileLayer url={baseLayers[baseMap]} attribution="&copy; OpenStreetMap contributors" />
 
-  {/* Polygons */}
-  {plots.map((plot) => (
-    <Polygon
-      key={plot.id}
-      positions={plot.coordinates}
-      eventHandlers={{ click: () => setSelectedPlot(plot) }}
-      pathOptions={{
-        color: selectedPlot?.id === plot.id ? "blue" : "green",
-        fillOpacity: selectedPlot?.id === plot.id ? 0.6 : 0.4,
-      }}
-    />
-  ))}
+         {/* GeoJSON for farms (local file) */}
+         {farmData && farmData.features && (
+           <GeoJSON
+             data={farmData}
+             style={() => ({
+               color: "white",
+               weight: 1,
+               fillOpacity: 0.1,
+             })}
+             onEachFeature={(feature: any, layer: any) => {
+               layer.on("click", () => {
+                 setSelectedPlot({
+                   id: feature.properties?.id || "",
+                   name: feature.properties?.name || "Farm",
+                   owner: feature.properties?.owner || "Unknown",
+                   crop: feature.properties?.crop || "Unknown",
+                   area: feature.properties?.area || "Unknown",
+                   coordinates: feature.geometry.coordinates?.[0],
+                 });
+               });
+             }}
+           />
+         )}
 
-  {/* Marker for search */}
-  {markerPosition && (
-    <Marker position={markerPosition}>
-      <Popup>{searchQuery || "Selected Location"}</Popup>
-    </Marker>
-  )}
+         {/* Polygons */}
+         {plots.map((plot) => (
+           <Polygon
+             key={plot.id}
+             positions={plot.coordinates}
+             eventHandlers={{ click: () => setSelectedPlot(plot) }}
+             pathOptions={{
+               color: selectedPlot?.id === plot.id ? "blue" : "green",
+               fillOpacity: selectedPlot?.id === plot.id ? 0.6 : 0.4,
+             }}
+           />
+         ))}
 
-  {/* Popup for map click */}
-  {popupPosition && <Popup position={popupPosition}>{popupContent}</Popup>}
+         {/* Marker for search */}
+         {markerPosition && (
+           <Marker position={markerPosition}>
+             <Popup>{searchQuery || "Selected Location"}</Popup>
+           </Marker>
+         )}
 
-  {/* Search bar */}
-  <SearchControl
-    setMarkerPosition={setMarkerPosition}
-    searchQuery={searchQuery}
-    setSearchQuery={setSearchQuery}
-  />
+         {/* Popup for map click */}
+         {popupPosition && <Popup position={popupPosition}>{popupContent}</Popup>}
 
-  {/* Zoom buttons (inside MapContainer!) */}
-  <ZoomButtons />
-</MapContainer>
+         {/* Search bar */}
+         <SearchControl
+           setMarkerPosition={setMarkerPosition}
+           searchQuery={searchQuery}
+           setSearchQuery={setSearchQuery}
+         />
+
+         {/* Zoom buttons (inside MapContainer!) */}
+         <ZoomButtons />
+       </MapContainer>
 
       )}
 
