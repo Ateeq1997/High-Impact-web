@@ -1,0 +1,819 @@
+# Scalar types
+scalar Time
+
+# Root Query Type
+type Query {
+    # 1. Area Production of Important Crops
+    getAreaProdOfImportantCrops(year: String): [AreaProdOfImportantCrops!]!
+    
+    # 2. Area Production Kharif Vegetables AJK
+    getAreaProductionKharifVegetablesAJK(district: String, vegetable: String): [AreaProductionKharifVegetablesAJK!]!
+    
+    # 3. Area Production Percentage Share Punjab Crops
+    getAreaProductionPercentageSharePunjabCrops(crop: String, year: String): [AreaProductionPercentageSharePunjabCrops!]!
+    
+    # 4. Area Sown by Source of Irrigation Sindh
+    getAreaSownBySourceOfIrrigationSindh(year: String): [AreaSownBySourceOfIrrigationSindh!]!
+    
+    # 5. Area Sown Irrigated Important Crops Punjab
+    getAreaSownIrrigatedImportantCropsPunjab(crops: String): [AreaSownIrrigatedImportantCropsPunjab!]!
+    
+    # 6. Area Sown Irrigation Source
+    getAreaSownIrrigationSource(year: String): [AreaSownIrrigationSource!]!
+    
+    # 7. Area Sown Production Yield Wheat Punjab
+    getAreaSownProdYieldWheatPunjab(district: String): [AreaSownProdYieldWheatPunjab!]!
+    
+    # 8. Area Sown Production Crops Combined Punjab
+    getAreaSownProductionCropsCombinedPunjab(year: String, crop: String): [AreaSownProductionCropsCombinedPunjab!]!
+    
+    # 9. Area Treated with Pesticides Crops Punjab
+    getAreaTreatedWithPesticidesCropsPunjab(year: String): [AreaTreatedWithPesticidesCropsPunjab!]!
+    
+    # 10. Average Retail Price Fertilizer
+    getAvgRetailPriceFertilizer(year: String): [AvgRetailPriceFertilizer!]!
+    
+    # 11. Canal Withdrawals Punjab
+    getCanalWithdrawlsPunjab(year: String, season: String): [CanalWithdrawlsPunjab!]!
+    
+    # 12. Channels Length Divisions Punjab
+    getChannelsLengthDivisionsPunjab(division: String): [ChannelsLengthDivisionsPunjab!]!
+    
+    # 13. Consumption Fertilizers Nutrients Pakistan
+    getConsumptionFertilizersNutrientsPak(year: String): [ConsumptionFertilizersNutrientsPak!]!
+    
+    # 14. Consumption of Pesticides
+    getConsumptionOfPesticides(year: String): [ConsumptionOfPesticides!]!
+    
+    # 15. Cotton Production Pakistan
+    getCottonProductionPakistan(year: String): [CottonProductionPakistan!]!
+    
+    # 16. Crop Area Punjab
+    getCropAreaPunjab(crop: String): [CropAreaPunjab!]!
+    
+    # 17. Distribution Indigenous Improved Seeds Punjab
+    getDistributionImprovedSeedsPunjab(year: String): [DistributionImprovedSeedsPunjab!]!
+    
+    # 18. Farmers Trained Cooperative Farming KPK
+    getFarmersTrainedCooperativeFarmingKpk(month: String): [FarmersTrainedCooperativeFarmingKpk!]!
+    
+    # 19. Fertilizer Machinery Impact KPK
+    getFertilizerMachineryImpactKpk(year: String, district: String): [FertilizerMachineryImpactKpk!]!
+    
+    # 20. Fertilizer Usage Production Punjab
+    getFertilizerUsageProductionPunjab(year: String, district: String): [FertilizerUsageProductionPunjab!]!
+    
+    # 21. Fertilizers Sale Districts Punjab
+    getFertilizersSaleDistrictsPunjab(district: String): [FertilizersSaleDistrictsPunjab!]!
+    
+    # 22. Food Grains Storage Capacity Punjab
+    getFoodGrainsStorageCapacityPunjab(district: String): [FoodGrainsStorageCapacityPunjab!]!
+    
+    # 23. Forests Products Pakistan
+    getForestsProductsPakistan(year: String): [ForestsProductsPakistan!]!
+    
+    # 24. Geography Columns
+    getGeographyColumns: [GeographyColumns!]!
+    
+    # 25. Geometry Columns
+    getGeometryColumns: [GeometryColumns!]!
+    
+    # 26. Ground Truthing Survey ADB
+    getGroundTruthingSurveyADB(province: String, district: String, season: String): [GroundTruthingSurveyADB!]!
+    
+    # 27. Kharif Rabi Irrigated Crop Total Irrigated Area
+    getKharifRabiIrrigatedCrop(crop: String): [KharifRabiIrrigatedCrop!]!
+    
+    # 28. Land Utilization Statistics Districts Punjab
+    getLandUtilizationStatisticsPunjab(year: String, district: String): [LandUtilizationStatisticsPunjab!]!
+    
+    # 29. Loans Disbursed Zarai Taraqiat Bank Punjab
+    getLoansDisbursedZaraiTaraqiatBank(purpose: String): [LoansDisbursedZaraiTaraqiatBank!]!
+    
+    # 30. Mauzzas Cropped Area Punjab
+    getMauzzasCroppedAreaPunjab(district: String): [MauzzasCroppedAreaPunjab!]!
+    
+    # 31. Percentage Distribution Wheat Districts Punjab
+    getPercentageDistributionWheatPunjab(district: String): [PercentageDistributionWheatPunjab!]!
+    
+    # 32. Prediction Crop Yield Identify Risk Punjab
+    getPredictionCropYieldRiskPunjab(district: String): [PredictionCropYieldRiskPunjab!]!
+    
+    # 33. Price Wheat Cities
+    getPriceWheatCities(city: String): [PriceWheatCities!]!
+    
+    # 34. Procurement Support Prices Agri Commodities
+    getProcurementSupportPrices(year: String): [ProcurementSupportPrices!]!
+    
+    # 35. Procurement Wheat District Punjab Food Department
+    getProcurementWheatPunjabFoodDept(district: String): [ProcurementWheatPunjabFoodDept!]!
+    
+    # 36. Quantum Acreage Index Important Crops
+    getQuantumAcerageIndexImportantCrops(crops: String, index: String): [QuantumAcerageIndexImportantCrops!]!
+    
+    # 37. Rainfall Pakistan 1901-2016
+    getRainfallPakistan(year: Int, month: String): [RainfallPakistan!]!
+    
+    # 38. Rainfall Selected Stations Punjab
+    getRainfallSelectedStationsPunjab(year: Int, month: String): [RainfallSelectedStationsPunjab!]!
+    
+    # 39. Small Dams District Tehsil Punjab
+    getSmallDamsPunjab(district: String, tehsil: String): [SmallDamsPunjab!]!
+    
+    # 40. Spatial Ref Sys
+    getSpatialRefSys(srid: Int): [SpatialRefSys!]!
+    
+    # 41. Stock Wheat Punjab Government
+    getStockWheatPunjabGovt(month: String): [StockWheatPunjabGovt!]!
+    
+    # 42. Temperature Rain Trends Major Cities
+    getTemperatureRainTrends(city: String, month: String): [TemperatureRainTrends!]!
+    
+    # 43. Tractors Imported Pakistan
+    getTractorsImportedPakistan(year: String): [TractorsImportedPakistan!]!
+    
+    # 44. Usage of Fertilizers Crops Nutrients
+    getUsageOfFertilizersCropsNutrients(year: String): [UsageOfFertilizersCropsNutrients!]!
+    
+    # 45. User Account Data
+    getUserAccountData(id: Int, username: String, role: String): [UserAccountData!]!
+    
+    # 46. Water Delivery Pakistan 
+    getWaterDeliveryPakistan(source: String): [WaterDeliveryPakistan!]!
+    
+    # 47. Watercourses Improved District Tehsil
+    getWatercoursesImprovedDistrictTehsil(district: String): [WatercoursesImprovedDistrictTehsil!]!
+    
+    # 48. Wheat Procurement Punjab
+    getWheatProcurementPunjab(district: String): [WheatProcurementPunjab!]!
+    
+    # 49. Wheat Release District Punjab
+    getWheatReleaseDistrictPunjab(district: String): [WheatReleaseDistrictPunjab!]!
+    
+    # 50. Yearly Crop Data Pakistan
+    getYearlyCropDataPakistan(fiscalYear: String): [YearlyCropDataPakistan!]!
+}
+
+# ----------------------------------------------------
+# Type Definitions
+# ----------------------------------------------------
+
+# 1. Area Production of Important Crops
+type AreaProdOfImportantCrops {
+    year: String!
+    areaWheat: Float
+    productionWheat: Float
+    areaMaize: Float
+    productionMaize: Float
+    areaRice: Float
+    productionRice: Float
+    areaSugarcane: Float
+    productionSugarcane: Float
+    areaCotton: Float
+    productionCotton: Float
+}
+
+# 2. Area Production Kharif Vegetables AJK 19-21
+type AreaProductionKharifVegetablesAJK {
+    district: String!
+    vegetableID: Int
+    vegetable: String
+    area2019Hect: Float
+    production2019Tons: Float
+    area2020Hect: Float
+    production2020Tons: Float
+    area2021Hect: Float
+    production2021Tons: Float
+}
+
+# 3. Area Production Percentage Share Punjab Crops 2007-20
+type AreaProductionPercentageSharePunjabCrops {
+    indicators: String!
+    cropID: Int
+    crop: String
+    year200708: Float
+    year200809: Float
+    year200910: Float
+    year201011: Float
+    year201112: Float
+    year201213: Float
+    year201314: Float
+    year201415: Float
+    year201516: Float
+    year201617: Float
+    year201718: Float
+    year201819: Float
+    year201920: Float
+}
+
+# 4. Area Sown by Source of Irrigation Sindh
+type AreaSownBySourceOfIrrigationSindh {
+    year: String!
+    total: Float
+    canal: Float
+    well: Float
+    tubeWell: Float
+    canalWell: Float
+    canalWells: Float
+    others: Float
+}
+
+# 5. Area Sown Irrigated Important Crops Punjab
+type AreaSownIrrigatedImportantCropsPunjab {
+    crops: String!
+    year201112: Float
+    year201213: Float
+    year201314: Float
+    year201415: Float
+    year201516: Float
+    year201617: Float
+    year201718: Float
+    year201819: Float
+    year201920: Float
+    year202021: Float
+}
+
+# 6. Area Sown Irrigation Source
+type AreaSownIrrigationSource {
+    year: String!
+    totalAreaSown: Float
+    unIrrigated: Float
+    totalIrrigated: Float
+    irrigatedByCanals: Float
+    irrigatedByWells: Float
+    irrigatedByTubewells: Float
+    irrigatedByCanalwells: Float
+    irrigatedByCanalTubewells: Float
+    irrigatedByOthersSources: Float
+}
+
+# 7. Area Sown Production Yield Wheat Punjab
+type AreaSownProdYieldWheatPunjab {
+    provinceDivisionDistrict: String!
+    year200708: Float
+    year200809: Float
+    year200910: Float
+    year201011: Float
+    year201112: Float
+    year201213: Float
+    year201314: Float
+    year201415: Float
+    year201516: Float
+    year201617: Float
+    year201718: Float
+    year201819: Float
+    year201920: Float
+}
+
+# 8. Area Sown Production Crops Combined Punjab 2010-21
+type AreaSownProductionCropsCombinedPunjab {
+    year: String!
+    cropID: Int
+    crop: String
+    totalAreaSown1000Hects: Float
+    area1000Hects: Float
+    production1000Hects: Float
+    indexOfAreaSownBaseYear201011: Float
+    indexOfProductionBaseYear201011: Float
+    percentShareOfAreaSown: Float
+}
+
+# 9. Area Treated with Pesticides Crops Punjab
+type AreaTreatedWithPesticidesCropsPunjab {
+    year: String!
+    totalArea: Float
+    wheat: Float
+    riceAndRiceNursery: Float
+    cotton: Float
+    maize: Float
+    sugarcane: Float
+    vegetablesFruits: Float
+    otherCrops: Float
+}
+
+# 10. Average Retail Price Fertilizer 50kg
+type AvgRetailPriceFertilizer {
+    year: String!
+    urea: Float
+    anCan26N: Float
+    as21N: Float
+    np2022: Float
+    sspG18P: Float
+    dap1846: Float
+    sop50K: Float
+}
+
+# 11. Canal Withdrawals Punjab
+type CanalWithdrawlsPunjab {
+    year: String!
+    seasonID: Int
+    season: String
+    allCanalsPunjab: Float
+    fiveLinkedCanals: Float
+    mrLinkInternal: Float
+    haveliCanals: Float
+    panjnadCanals: Float
+    centralBariDoabCanals: Float
+    sutlejValleyCanals: Float
+    thalCanals: Float
+    taunsaCanals: Float
+    crbc: Float
+}
+
+# 12. Channels Length Divisions Punjab 21
+type ChannelsLengthDivisionsPunjab {
+    division: String!
+    mainCanalsOrBranches: Float
+    majorDistributories: Float
+    minorDistributories: Float
+    supplyEscapeChannels: Float
+    subTotal: Float
+    drains: Float
+    grandTotal: Float
+}
+
+# 13. Consumption Fertilizers Nutrients Pakistan 2008-18
+type ConsumptionFertilizersNutrientsPak {
+    year: String!
+    kharifN: Float
+    kharifP: Float
+    kharifK: Float
+    kharifAll: Float
+    rabiN: Float
+    rabiP: Float
+    rabiK: Float
+    rabiAll: Float
+    totalN: Float
+    totalP: Float
+    totalK: Float
+    totalAll: Float
+}
+
+# 14. Consumption of Pesticides 2008-18
+type ConsumptionOfPesticides {
+    year: String!
+    quantityMTImports: Float
+    quantityMTProduction: Float
+    quantityMTTotal: Float
+    valueMillionRs: Float
+}
+
+# 15. Cotton Production Pakistan 2016-20
+type CottonProductionPakistan {
+    factor: String!
+    year201617: Float
+    year201718: Float
+    year201819: Float
+    year201920: Float
+}
+
+# 16. Crop Area Punjab 2020-21
+type CropAreaPunjab {
+    crop: String!
+    croppedArea: Float
+    percentOfTotal: Float
+}
+
+# 17. Distribution Indigenous Improved Seeds Punjab
+type DistributionImprovedSeedsPunjab {
+    year: String!
+    wheat: Float
+    paddy: Float
+    cotton: Float
+    maize: Float
+    gram: Float
+    potato: Float
+    totalMetTon: Float
+}
+
+# 18. Farmers Trained Cooperative Farming KPK
+type FarmersTrainedCooperativeFarmingKpk {
+    month: String!
+    kohat: Int
+    diKhan: Int
+    mansehra: Int
+    hangu: Int
+    mardan: Int
+    tank: Int
+    charsadda: Int
+    swat: Int
+    peshawar: Int
+    shangla: Int
+    haripur: Int
+    bannu: Int
+    chitral: Int
+    nowshera: Int
+    dirUpper: Int
+    malakand: Int
+    abbottabad: Int
+    swabi: Int
+    dirLower: Int
+    bunner: Int
+    karak: Int
+    lakkiMarwat: Int
+    battagram: Int
+    torghar: Int
+    kohistan: Int
+}
+
+# 19. Fertilizer Machinery Impact KPK 2016-17
+type FertilizerMachineryImpactKpk {
+    year: String!
+    factors: String
+    subFactor: String
+    districts: String
+    amount: Float
+}
+
+# 20. Fertilizer Usage Production Punjab 2002-15
+type FertilizerUsageProductionPunjab {
+    year: String!
+    province: String
+    division: String
+    district: String
+    usageIn1000NutrientTons: Int
+    areaSownTotalWheat: Int
+    areaSownRice: Int
+    areaSownCotton: Int
+    areaSownSugarcane: Int
+    wheatProduction: Int
+    riceProduction: Int
+    cottonProduction: Int
+    sugarcaneProduction: Int
+    outputAcreWheat: Float
+    outputAcreRice: Float
+    outputAcreCotton: Float
+    outputAcreSugarcane: Float
+}
+
+# 21. Fertilizers Sale Districts Punjab 2015-20
+type FertilizersSaleDistrictsPunjab {
+    divisionDistrict: String!
+    year201516: Int
+    year201617: Int
+    year201718: Int
+    year201819: Int
+    year201920: Int
+}
+
+# 22. Food Grains Storage Capacity Punjab
+type FoodGrainsStorageCapacityPunjab {
+    divisionDistrict: String!
+    houseType: Float
+    silosBinsBiniShell: Float
+    openBulkHeads: Float
+    total: Float
+}
+
+# 23. Forests Products Pakistan 2008-18
+type ForestsProductsPakistan {
+    year: String!
+    timberThousandCubMeters: Float
+    firewoodThousandCubMeters: Float
+    totalThousandCubMeters: Float
+    timberMillionRupees: Float
+    firewoodMillionRupees: Float
+    totalMillionRupees: Float
+}
+
+# 24. Geography Columns
+type GeographyColumns {
+    fTableCatalog: String
+    fTableSchema: String
+    fTableName: String
+    fGeographyColumn: String
+    coordDimension: Int
+    srid: Int
+    type: String
+}
+
+# 25. Geometry Columns
+type GeometryColumns {
+    fTableCatalog: String
+    fTableSchema: String
+    fTableName: String
+    fGeometryColumn: String
+    coordDimension: Int
+    srid: Int
+    type: String
+}
+
+# 26. Ground Truthing Survey ADB
+type GroundTruthingSurveyADB {
+    id: String!
+    season: String
+    province: String
+    district: String
+    date: String
+    latitude: Float
+    longitude: Float
+    code: Int
+    land: String
+    description: String
+    stage: String
+}
+
+# 27. Kharif Rabi Irrigated Crop Total Irrigated Area 2018-21
+type KharifRabiIrrigatedCrop {
+    crop: String!
+    totalIn201819: Float
+    irrigatedIn201819: Float
+    totalIn201920: Float
+    irrigatedIn201920: Float
+    totalIn202021: Float
+    irrigated202021: Float
+}
+
+# 28. Land Utilization Statistics Districts Punjab 2007-20
+type LandUtilizationStatisticsPunjab {
+    year: String!
+    provinceDivisionDistrict: String
+    geographicalArea: Int
+    reportedArea: Int
+    totalCultivatedArea: Int
+    currentFallowsCultivatedArea: Int
+    netAreaSown: Int
+    totalCroppedArea: Int
+    areaSownMoreThanOnce: Int
+    totalUncultivatedArea: Int
+    culturableWasteUncultivatedArea: Int
+    forestUncultivatedArea: Int
+    notAvailableForCultivation: Int
+}
+
+# 29. Loans Disbursed Zarai Taraqiat Bank Punjab
+type LoansDisbursedZaraiTaraqiatBank {
+    purpose: String!
+    year201617: Int
+    year201718: Int
+    year201819: Int
+    year201920: Int
+    year202021: Int
+}
+
+# 30. Mauzzas Cropped Area Punjab 2019-20
+type MauzzasCroppedAreaPunjab {
+    divisionDistrict: String!
+    numberOfMauzas: Int
+    croppedArea1000Hectares: Int
+}
+
+# 31. Percentage Distribution Wheat Districts Punjab 2009-20
+type PercentageDistributionWheatPunjab {
+    provinceDivisionDistrict: String!
+    year200708: Float
+    year200809: Float
+    year200910: Float
+    year201011: Float
+    year201112: Float
+    year201213: Float
+    year201314: Float
+    year201415: Float
+    year201516: Float
+    year201617: Float
+    year201718: Float
+    year201819: Float
+    year201920: Float
+}
+
+# 32. Prediction Crop Yield Identify Risk Punjab
+type PredictionCropYieldRiskPunjab {
+    divisionDistrict: String!
+    wheat: Int
+    gram: Int
+    barley: Int
+    potato: Int
+    onion: Int
+    canola: Int
+    rapeseedAndMustard: Int
+    masoorCrop: Int
+    mattarPeas: Int
+    otherRabiPulses: Int
+    garlic: Int
+    tabacco: Int
+    linseed: Int
+    corriander: Int
+    mattarGreen: Int
+    carrot: Int
+    tomato: Int
+    turnip: Int
+    cauliflower: Int
+    otherVegetables: Int
+    guava: Int
+    banana: Int
+    grapefruit: Int
+    kinnu: Int
+    lemon: Int
+    mandrine: Int
+    orange: Int
+    musumbi: Int
+    sourLime: Int
+    sourOrange: Int
+    sweetLime: Int
+    otherCitrus: Int
+    ber: Int
+    loquat: Int
+    mulberry: Int
+    otherRabiFruits: Int
+    barseem: Int
+    lucern: Int
+    others: Int
+}
+
+# 33. Price Wheat Cities 2020-21
+type PriceWheatCities {
+    commodityItem: String!
+    unitKg: Int
+    city: String
+    dec2020PricesRs: Float
+    sept2021PricesRs: Float
+    dec2021PricesRs: Float
+    percentChangeInDec2021OverDec2020: Float
+    percentChangeInDec2021OverSept2021: Float
+}
+
+# 34. Procurement Support Prices Agri Commodities 40kg
+type ProcurementSupportPrices {
+    year: String!
+    wheat: Int
+    basmati385: Int
+    basmatiSuper: Int
+    irri6: Int
+    cotton: Int
+    sugarcane: Int
+}
+
+# 35. Procurement Wheat District Punjab Food Department
+type ProcurementWheatPunjabFoodDept {
+    divisionDistrict: String!
+    year201617: Int
+    year201718: Int
+    year201819: Int
+    year201920: Int
+    year202021: Int
+}
+
+# 36. Quantum Acreage Index Important Crops 2011-21
+type QuantumAcerageIndexImportantCrops {
+    crops: String!
+    indexID: Int
+    index: String
+    year201112: Float
+    year201213: Float
+    year201314: Float
+    year201415: Float
+    year201516: Float
+    year201617: Float
+    year201718: Float
+    year201819: Float
+    year201920: Float
+    year202021: Float
+}
+
+# 37. Rainfall 1901-2016 Pakistan
+type RainfallPakistan {
+    year: Int!
+    month: String!
+    rainfallMm: Float
+}
+
+# 38. Rainfall Selected Stations Punjab 2010-21
+type RainfallSelectedStationsPunjab {
+    year: Int!
+    month: String!
+    bahawalnagar: Float
+    bahawalpur: Float
+    jhelum: Float
+    khanpur: Float
+    lahore: Float
+    multan: Float
+    murree: Float
+    rawalpindiIslamabad: Float
+    sargodha: Float
+    sialkot: Float
+}
+
+# 39. Small Dams District Tehsil Punjab 2018-19
+type SmallDamsPunjab {
+    nameOfSmallDam: String!
+    district: String
+    tehsil: String
+    lengthOfCanalFt: Int
+    grossStorageCapacityAft: Int
+    actualIrrigationInAcres: Int
+}
+
+# 40. Spatial Ref Sys
+type SpatialRefSys {
+    srid: Int!
+    authName: String
+    authSrid: Int
+    srtext: String
+    proj4text: String
+}
+
+# 41. Stock Wheat Punjab Government
+type StockWheatPunjabGovt {
+    month: String!
+    year201718: Int
+    year201819: Int
+    year201920: Int
+    year202021: Int
+    year202122: Int
+}
+
+# 42. Temperature Rain Trends Major Cities
+type TemperatureRainTrends {
+    month: String!
+    cityID: Int
+    city: String
+    highestRecordedTemperatureInCelsius: Float
+    highestRecordedTemperatureDate: String
+    lowestRecordedTemperatureInCelsius: Float
+    lowestRecordedTemperatureDate: String
+    monthlyHeaviestRainfallInMm: Float
+    heaviestRainfallDate: Int
+}
+
+# 43. Tractors Imported Pakistan
+type TractorsImportedPakistan {
+    year: String!
+    duringTheYear: Int
+    cumulativeNumber: Int
+}
+
+# 44. Usage of Fertilizers Crops Nutrients
+type UsageOfFertilizersCropsNutrients {
+    year: String!
+    wheat: Float
+    rice: Float
+    maize: Float
+    cotton: Float
+    sugarcane: Float
+    others: Float
+    total: Float
+}
+
+# 45. User Account Data
+type UserAccountData { 
+    id: Int!
+    username: String
+    password: String
+    email: String
+    role: String
+}    
+
+# 46. Water Delivery Pakistan 2013-20
+type WaterDeliveryPakistan {
+    source: String!
+    urban: Float
+    rural: Float
+    total: Float
+}
+
+# 47. Watercourses Improved District Tehsil 19-20
+type WatercoursesImprovedDistrictTehsil {
+    districtTehsil: String!
+    noOfImprovedWatercourses: Float
+    commandAreaAcres: Float
+}
+
+# 48. Wheat Procurement Punjab 2012-21
+type WheatProcurementPunjab {
+    divisionDistrict: String!
+    year201617: Int
+    year201718: Int
+    year201819: Int
+    year201920: Int
+    year202021: Int
+}
+
+# 49. Wheat Release District Punjab 2016-21
+type WheatReleaseDistrictPunjab {
+    divisionDistrict: String!
+    year201617: Int
+    year201718: Int
+    year201819: Int
+    year201920: Int
+    year202021: Int
+}
+
+# 50. Yearly Crop Data Pakistan
+type YearlyCropDataPakistan {
+    fiscalYear: String!
+    areaWheat: Float
+    productionWheat: Float
+    yieldWheat: Float
+    areaCotton: Float
+    productionCotton: Float
+    yieldCotton: Float
+    areaSugarcane: Float
+    productionSugarcane: Float
+    yieldSugarcane: Float
+    areaRice: Float
+    productionRice: Float
+    yieldRice: Float
+    areaMaize: Float
+    productionMaize: Float
+    yieldMaize: Float
+}

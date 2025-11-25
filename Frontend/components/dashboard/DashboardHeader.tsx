@@ -2,10 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Map, FolderKanban, List, Home, Users, UserCircle } from "lucide-react";
 
 const DashboardHeader = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    router.push("/login");
+  };
 
   return (
     <header className="bg-white shadow-md fixed top-0 w-full z-50">
@@ -47,6 +54,13 @@ const DashboardHeader = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             )}
           </svg>
+        </button>
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 ml-4"
+        >
+          Logout
         </button>
       </div>
 

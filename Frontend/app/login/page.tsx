@@ -1,94 +1,134 @@
 "use client";
 
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import Link from "next/link";
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+
+type FormState = {
+  email: string;
+  password: string;
+};
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const handleLogin = () => {
-    // Direct redirect (static login)
+  const [form, setForm] = useState<FormState>({ email: "", password: "" });
+  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleLogin = async () => {
+    setError("");
+
+    if (!form.email || !form.password) {
+      setError("Please provide email and password.");
+      return;
+    }
+
+    setLoading(true);
+
+    // 🔥 1. Query backend GraphQL API
+    const response = await fetch("http://localhost:8080/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: `
+          query {
+            getUserAccountData {
+              id
+              username
+              email
+              password
+              role
+            }
+          }
+        `,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!result.data || !result.data.getUserAccountData) {
+      setError("Something went wrong. Try again.");
+      setLoading(false);
+      return;
+    }
+
+    const users = result.data.getUserAccountData;
+
+    // 🔥 2. Match email + password from backend
+    const matched = users.find(
+      (u: any) =>
+        u.email?.toLowerCase() === form.email.toLowerCase() &&
+        u.password === form.password
+    );
+
+    if (!matched) {
+      setError("Invalid email or password.");
+      setLoading(false);
+      return;
+    }
+
+    // 🔥 3. Store user data in localStorage
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem(
+      "authUser",
+      JSON.stringify({
+        id: matched.id,
+        email: matched.email,
+        role: matched.role,
+      })
+    );
+
     router.push("/dashboard");
+    setLoading(false);
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-2xl font-semibold text-center text-blue-700 mb-4">
+          Login
+        </h2>
 
-      <main className="flex-grow flex items-center justify-center mt-16">
-        <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
-          <h2 className="text-3xl font-bold text-blue-700 mb-6 text-center">
-            Login
-          </h2>
+        <div className="space-y-3">
+          <label className="block text-sm text-gray-700">Email</label>
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
+            placeholder="you@example.com"
+            required
+          />
 
-          {/* Social Login Buttons */}
-          <div className="space-y-3 mb-6">
-            <button
-              type="button"
-              className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded py-2 hover:bg-gray-100 transition"
-            >
-              <FcGoogle size={22} />
-              <span className="text-gray-700 font-medium">Continue with Google</span>
-            </button>
+          <label className="block text-sm text-gray-700">Password</label>
+          <input
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 text-black"
+            placeholder="*******"
+            required
+          />
 
-            <button
-              type="button"
-              className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded py-2 hover:bg-gray-100 transition"
-            >
-              <FaGithub size={22} className="text-gray-800" />
-              <span className="text-gray-700 font-medium">Continue with GitHub</span>
-            </button>
-          </div>
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full mt-2 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-medium disabled:opacity-60"
+          >
+            {loading ? "Checking..." : "Login"}
+          </button>
 
-          {/* Divider */}
-          <div className="flex items-center mb-6">
-            <div className="flex-grow h-px bg-gray-300"></div>
-            <span className="mx-3 text-gray-500 text-sm">OR</span>
-            <div className="flex-grow h-px bg-gray-300"></div>
-          </div>
-
-          {/* Email Inputs (not required for now) */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-gray-700 mb-2">Email</label>
-              <input
-                type="email"
-                placeholder="test@example.com"
-                className="w-full px-4 py-2 border border-gray-300 rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 mb-2">Password</label>
-              <input
-                type="password"
-                placeholder="123456"
-                className="w-full px-4 py-2 border border-gray-300 rounded"
-              />
-            </div>
-
-            {/* Login Button */}
-            <button
-              type="button"
-              onClick={handleLogin}
-              className="w-full py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
-            >
-              Login with Email
-            </button>
-          </div>
-
-          <p className="mt-4 text-gray-600 text-sm text-center">
-            Don’t have an account?{" "}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              Sign Up
-            </Link>
-          </p>
+          {error && (
+            <p className="text-red-600 text-sm text-center mt-2">{error}</p>
+          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,74 @@
+
+
+[
+      {
+        "id": 1,
+        "username": "ateeq2345",
+        "password": "12345678",
+        "email": "ateeq2345@gmail.com",
+        "role": "Admin"
+      },
+      {
+        "id": 2,
+        "username": "usman123",
+        "password": "12345678",
+        "email": "usman123@gmail.com",
+        "role": "Farmer"
+      },
+      {
+        "id": 3,
+        "username": "ahmad3456",
+        "password": "12345678",
+        "email": "ahmad3456@gmail.com",
+        "role": "Developer"
+      },
+      {
+        "id": 4,
+        "username": "nabeel0987",
+        "password": "12345678",
+        "email": "nabeel0987@gmail.com",
+        "role": "Developer"
+      },
+      {
+        "id": 5,
+        "username": "sidra4657",
+        "password": "12345678",
+        "email": "sidra4657@gmail.com",
+        "role": "Farmer"
+      },
+      {
+        "id": 6,
+        "username": "soniya6908",
+        "password": "12345678",
+        "email": "soniya6908@gmail.com",
+        "role": "Farmer"
+      },
+      {
+        "id": 7,
+        "username": "kaleem2690",
+        "password": "12345678",
+        "email": "kaleem2690@gmail.com",
+        "role": "Farmer"
+      },
+      {
+        "id": 8,
+        "username": "zargham3268",
+        "password": "12345678",
+        "email": "zargham3268@gmail.com",
+        "role": "Farmer"
+      },
+      {
+        "id": 9,
+        "username": "muzamil6588",
+        "password": "12345678",
+        "email": "muzamil6588@gmail.com",
+        "role": "Farmer"
+      },
+      {
+        "id": 10,
+        "username": "hassan2335",
+        "password": "12345678",
+        "email": "hassan2335@gmail.com",
+        "role": "Farmer"
+      }
+    ]

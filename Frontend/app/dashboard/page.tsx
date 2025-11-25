@@ -1,9 +1,10 @@
 "use client";
 
-import CardPlaceholder from "@/components/home/CardPlaceholder";
-// import Header from "@/components/layout/Header";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import Footer from "@/components/layout/Footer";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+
+
 import {
   LineChart,
   Line,
@@ -15,12 +16,24 @@ import {
   PieChart,
   Pie,
   Cell,
+  BarChart,
+  Bar
 } from "recharts";
-import { BarChart, Bar } from "recharts";
 import { CheckCircle, AlertTriangle, MessageSquare, Package, TrendingUp, User } from "lucide-react";
 import InteractiveMapPreview from "@/components/home/InteractiveMapPreview";
-
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import CardPlaceholder from "@/components/home/CardPlaceholder";
 export default function DashboardPage() {
+  
+  const router = useRouter();
+  useEffect(() => {
+    const auth = localStorage.getItem("isAuthenticated");
+    if (!auth) {
+      router.push("/login");
+    }
+  }, []);
+
+  // ...existing code...
   const salesData = [
     { name: "Jan", value: 400 },
     { name: "Feb", value: 300 },
@@ -59,6 +72,7 @@ export default function DashboardPage() {
     { name: "Ahmed Raza", comment: "Would like to see dark mode soon!", rating: 4 },
   ];
 
+  // ...existing code...
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <DashboardHeader />
