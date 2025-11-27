@@ -29,7 +29,6 @@ export default function LoginPage() {
 
     setLoading(true);
 
-    // 🔥 1. Query backend GraphQL API
     const response = await fetch("http://localhost:8080/query", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -58,7 +57,6 @@ export default function LoginPage() {
 
     const users = result.data.getUserAccountData;
 
-    // 🔥 2. Match email + password from backend
     const matched = users.find(
       (u: any) =>
         u.email?.toLowerCase() === form.email.toLowerCase() &&
@@ -71,7 +69,6 @@ export default function LoginPage() {
       return;
     }
 
-    // 🔥 3. Store user data in localStorage
     localStorage.setItem("isAuthenticated", "true");
     localStorage.setItem(
       "authUser",
@@ -123,6 +120,24 @@ export default function LoginPage() {
           >
             {loading ? "Checking..." : "Login"}
           </button>
+
+          {/* ⭐ Added Signup + Forgot Password */}
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={() => router.push("/forgot-password")}
+              className="text-blue-600 text-sm hover:underline"
+            >
+              Forgot Password?
+            </button>
+
+           <button
+  onClick={() => router.push("/signup")}
+  className="text-blue-600 text-sm hover:underline"
+>
+  Sign Up
+</button>
+
+          </div>
 
           {error && (
             <p className="text-red-600 text-sm text-center mt-2">{error}</p>
