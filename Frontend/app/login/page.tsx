@@ -19,69 +19,79 @@ export default function LoginPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleLogin = async () => {
-    setError("");
+const handleLogin = async () => {
+  setError("");
 
-    if (!form.email || !form.password) {
-      setError("Please provide email and password.");
-      return;
-    }
+  if (!form.email || !form.password) {
+    setError("Please provide email and password.");
+    return;
+  }
 
-    setLoading(true);
+  setLoading(true);
 
-    const response = await fetch("http://localhost:8080/query", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          query {
-            getUserAccountData {
-              id
-              username
-              email
-              password
-              role
-            }
+  const response = await fetch("http://localhost:8080/query", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: `
+        query {
+          getUserAccountData {
+            id
+            username
+            email
+            password
+            role
           }
-        `,
-      }),
-    });
+        }
+      `,
+    }),
+  });
 
-    const result = await response.json();
+  const result = await response.json();
 
-    if (!result.data || !result.data.getUserAccountData) {
-      setError("Something went wrong. Try again.");
-      setLoading(false);
-      return;
-    }
-
-    const users = result.data.getUserAccountData;
-
-    const matched = users.find(
-      (u: any) =>
-        u.email?.toLowerCase() === form.email.toLowerCase() &&
-        u.password === form.password
-    );
-
-    if (!matched) {
-      setError("Invalid email or password.");
-      setLoading(false);
-      return;
-    }
-
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem(
-      "authUser",
-      JSON.stringify({
-        id: matched.id,
-        email: matched.email,
-        role: matched.role,
-      })
-    );
-
-    router.push("/dashboard");
+  if (!result.data || !result.data.getUserAccountData) {
+    setError("Something went wrong. Try again.");
     setLoading(false);
-  };
+    return;
+  }
+
+  const users = result.data.getUserAccountData;
+
+  const matched = users.find(
+    (u: any) =>
+      u.email?.toLowerCase() === form.email.toLowerCase() &&
+      u.password === form.password
+  );
+
+  if (!matched) {
+    setError("Invalid email or password.");
+    setLoading(false);
+    return;
+  }
+
+  // Save login info
+  localStorage.setItem("isAuthenticated", "true");
+  localStorage.setItem(
+    "authUser",
+    JSON.stringify({
+      id: matched.id,
+      email: matched.email,
+      role: matched.role,
+    })
+  );
+
+  // ⭐ ROLE-BASED REDIRECTION
+  if (matched.role.toLowerCase() === "admin") {
+    router.push("/admindashboard");
+  } else if (matched.role.toLowerCase() === "farmer") {
+    router.push("/farmerdashboard");
+  } else {
+    setError("Unknown role. Contact admin.");
+  }
+
+  setLoading(false);
+};
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">

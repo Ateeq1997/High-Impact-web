@@ -90,7 +90,6 @@ export default function SignupPage() {
             className="w-full border rounded px-3 py-2 text-black"
           >
             <option value="farmer">Farmer</option>
-            <option value="developer">Developer</option>
             <option value="admin">Admin</option>
           </select>
 
