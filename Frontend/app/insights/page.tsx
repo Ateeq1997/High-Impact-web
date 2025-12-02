@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/components/layout/Header";
-
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import {
   BarChart,
   Bar,
@@ -84,7 +84,7 @@ export default function InsightsAnalyticsPage() {
 ];
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <Header />
+      <DashboardHeader />
 
       <main className="flex-grow mt-16 p-6">
         <div className="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-8">
