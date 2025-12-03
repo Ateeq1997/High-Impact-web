@@ -27,10 +27,10 @@ const DashboardHeader = () => {
         <nav className="hidden md:flex space-x-4 ml-40 items-center">
           {[
             { href: "/map", label: "Map", Icon: Map },
-            { href: "/projects-board", label: "Projects", Icon: FolderKanban },
+            { href: "/farmer-projectboard", label: "Projects", Icon: FolderKanban },
               { href: "/insights", label: "Insights", Icon: Lightbulb },
 { href: "/chatbot", label: "Chatbot", Icon: Bot },
-            { href: "/farms", label: "Farm Lists", Icon: Home },
+            { href: "/farmerfarmlist", label: "Farm Lists", Icon: Home },
             { href: "/accounts", label: "Accounts", Icon: UserCircle },
           ].map(({ href, label, Icon }) => (
             <Link
@@ -71,10 +71,10 @@ const DashboardHeader = () => {
         <nav className="md:hidden bg-white shadow-md px-4 pt-2 pb-4 space-y-2">
           {[
             { href: "/map", label: "Map", Icon: Map },
-            { href: "/projects-board", label: "Projects", Icon: FolderKanban },
+            { href: "/farmer-projectboard", label: "Projects", Icon: FolderKanban },
             { href: "/insights", label: "Insights", Icon: Lightbulb },
 { href: "/chatbot", label: "Chatbot", Icon: Bot },
-            { href: "/farms", label: "Farm Lists", Icon: Home },
+            { href: "/farmerfarmlist", label: "Farm Lists", Icon: Home },
             { href: "/accounts", label: "Accounts", Icon: UserCircle },
           ].map(({ href, label, Icon }) => (
             <Link

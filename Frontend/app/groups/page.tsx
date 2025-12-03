@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import AdminDashHeader from "@/components/dashboard/AdminDashHeader";
 
 // ---- SAMPLE USER DATA (20 USERS) ----
 const usersData = [
@@ -50,7 +50,7 @@ export default function GroupListPage() {
 
   return (
     <>
-      <DashboardHeader />
+      <AdminDashHeader />
       <div className="min-h-screen bg-gray-50 p-8 py-20">
         <h1 className="text-3xl font-bold mb-6 text-black">Group List (Users)</h1>
 

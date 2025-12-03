@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import AdminDashHeader from "@/components/dashboard/AdminDashHeader";
+
+// Dummy Data
 const farmsData = [
   { id: 1, name: "Green Valley Farms", address: "Sector A, Mardan", farms: 5, workers: 20 },
   { id: 2, name: "Blue Heights Agriculture", address: "Sector B, Peshawar", farms: 3, workers: 15 },
@@ -31,8 +34,18 @@ const farmsData = [
 export default function FarmsPage() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [role, setRole] = useState(""); // <-- for dynamic header
   const itemsPerPage = 10;
   const router = useRouter();
+
+  // Load user role
+  useEffect(() => {
+    const authUser = localStorage.getItem("authUser");
+    if (authUser) {
+      const parsed = JSON.parse(authUser);
+      setRole(parsed.role);
+    }
+  }, []);
 
   const filteredData = farmsData.filter(
     (f) =>
@@ -47,19 +60,23 @@ export default function FarmsPage() {
   );
 
   return (
-    <>
-      <DashboardHeader />
-      <div className="min-h-screen bg-gray-50 p-8 py-20">
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      {/* Dynamic Header */}
+      {role === "admin" ? <AdminDashHeader /> : <DashboardHeader />}
+
+      <div className="p-8 py-24 flex-grow">
         <h1 className="text-3xl font-bold mb-6 text-black">Farms List</h1>
 
         {/* Top Controls */}
         <div className="flex justify-between items-center mb-4">
           <span className="text-black">
             Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-            {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length}
+            {Math.min(currentPage * itemsPerPage, filteredData.length)} of{" "}
+            {filteredData.length}
           </span>
 
           <div className="flex items-center gap-2">
+            {/* Search */}
             <div className="relative">
               <input
                 type="text"
@@ -69,11 +86,13 @@ export default function FarmsPage() {
                   setSearch(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="pl-10 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 text-black"
+                className="pl-10 pr-3 py-2 border rounded-lg text-black placeholder-gray-400
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
               <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
 
+            {/* Pagination */}
             <button
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
@@ -104,6 +123,7 @@ export default function FarmsPage() {
                 <th className="px-6 py-3 text-sm font-semibold text-black">Actions</th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-gray-200">
               {currentData.map((f) => (
                 <tr key={f.id} className="hover:bg-gray-50">
@@ -121,6 +141,7 @@ export default function FarmsPage() {
                   </td>
                 </tr>
               ))}
+
               {currentData.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
@@ -132,6 +153,6 @@ export default function FarmsPage() {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }

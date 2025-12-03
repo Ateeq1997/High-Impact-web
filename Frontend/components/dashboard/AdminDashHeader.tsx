@@ -24,9 +24,9 @@ const AdminDashHeader = () => {
 
   const navItems = [
     { href: "/usermanagement", label: "User Management", Icon: Users },
-    { href: "/farms", label: "Farm Lists", Icon: LandPlot },
+    { href: "/adminfarmlist", label: "Farm Lists", Icon: LandPlot },
     { href: "/groups", label: "Group Lists", Icon: UsersRound },
-    { href: "/projects-board", label: "Projects", Icon: FolderKanban },
+    { href: "/admin-projectboard", label: "Projects", Icon: FolderKanban },
     { href: "/map", label: "Map", Icon: Map },
     { href: "/datalayers", label: "Data Layers", Icon: Layers },
     { href: "/accounts", label: "Accounts", Icon: UserCircle },
@@ -34,7 +34,7 @@ const AdminDashHeader = () => {
 
   return (
     <header className="bg-white shadow-md fixed top-0 w-full z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 flex justify-between items-center h-16">
 
         {/* Logo */}
         <Link href="/" className="text-2xl font-bold text-blue-600">
@@ -42,7 +42,7 @@ const AdminDashHeader = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex space-x-3 ml-20 items-center">
+        <nav className="hidden md:flex space-x-3 ml-16 items-center">
           {navItems.map(({ href, label, Icon }) => (
             <Link
               key={href}
