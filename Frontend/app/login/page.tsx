@@ -70,24 +70,24 @@ const handleLogin = async () => {
   }
 
   // Save login info
-  localStorage.setItem("isAuthenticated", "true");
-  localStorage.setItem(
-    "authUser",
-    JSON.stringify({
-      id: matched.id,
-      email: matched.email,
-      role: matched.role,
-    })
-  );
+localStorage.setItem("isAuthenticated", "true");
+localStorage.setItem(
+  "authUser",
+  JSON.stringify({
+    id: matched.id,
+    email: matched.email,
+    role: matched.role.toLowerCase(), // ⭐ FIX: Normalize role
+  })
+);
 
-  // ⭐ ROLE-BASED REDIRECTION
-  if (matched.role.toLowerCase() === "admin") {
-    router.push("/admindashboard");
-  } else if (matched.role.toLowerCase() === "farmer") {
-    router.push("/farmerdashboard");
-  } else {
-    setError("Unknown role. Contact admin.");
-  }
+// ⭐ ROLE-BASED REDIRECTION
+if (matched.role.toLowerCase() === "admin") {
+  router.push("/admindashboard");
+} else if (matched.role.toLowerCase() === "farmer") {
+  router.push("/farmerdashboard");
+} else {
+  setError("Unknown role. Contact admin.");
+}
 
   setLoading(false);
 };

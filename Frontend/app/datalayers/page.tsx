@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-
+import AdminDashHeader from "@/components/dashboard/AdminDashHeader";
 interface Layer {
   id: string;
   name: string;
@@ -15,6 +15,13 @@ const initialLayers: Layer[] = [
   { id: "1", name: "NDVI Layer", type: "raster", source: "s3://highimpact/tiles/ndvi", status: "active" },
   { id: "2", name: "Rainfall Layer", type: "raster", source: "s3://highimpact/tiles/rainfall", status: "active" },
   { id: "3", name: "Soil Type Layer", type: "vector", source: "s3://highimpact/tiles/soil", status: "inactive" },
+  { id: "4", name: "Temperature Layer", type: "raster", source: "s3://highimpact/tiles/temp", status: "active" },
+  { id: "5", name: "Elevation Layer", type: "raster", source: "s3://highimpact/tiles/elevation", status: "inactive" },
+  { id: "6", name: "Land Use Layer", type: "vector", source: "s3://highimpact/tiles/landuse", status: "active" },
+  { id: "7", name: "Water Bodies Layer", type: "vector", source: "s3://highimpact/tiles/water", status: "inactive" },
+  { id: "8", name: "Crop Type Layer", type: "vector", source: "s3://highimpact/tiles/crop", status: "active" },
+  { id: "9", name: "Humidity Layer", type: "raster", source: "s3://highimpact/tiles/humidity", status: "inactive" },
+  { id: "10", name: "Vegetation Layer", type: "raster", source: "s3://highimpact/tiles/vegetation", status: "active" },
 ];
 
 export default function DataLayers() {
@@ -47,7 +54,8 @@ export default function DataLayers() {
   };
 
   return (
-    <div className="p-6">
+    <><AdminDashHeader />
+    <div className="p-6 text-black mt-16">
       <h1 className="text-2xl font-bold mb-4">Data Layers Management</h1>
 
       {/* Add New Layer */}
@@ -59,8 +67,7 @@ export default function DataLayers() {
             className="border rounded px-2 py-1"
             value={newLayerName}
             onChange={(e) => setNewLayerName(e.target.value)}
-            placeholder="NDVI Layer"
-          />
+            placeholder="NDVI Layer" />
         </div>
         <div>
           <label className="block font-medium mb-1">Layer Type</label>
@@ -80,8 +87,7 @@ export default function DataLayers() {
             className="border rounded px-2 py-1"
             value={newLayerSource}
             onChange={(e) => setNewLayerSource(e.target.value)}
-            placeholder="s3://highimpact/tiles/ndvi"
-          />
+            placeholder="s3://highimpact/tiles/ndvi" />
         </div>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded"
@@ -112,9 +118,7 @@ export default function DataLayers() {
                 <td className="px-4 py-2">{layer.status}</td>
                 <td className="px-4 py-2">
                   <button
-                    className={`px-3 py-1 rounded ${
-                      layer.status === "active" ? "bg-red-500 text-white" : "bg-green-500 text-white"
-                    }`}
+                    className={`px-3 py-1 rounded ${layer.status === "active" ? "bg-red-500 text-white" : "bg-green-500 text-white"}`}
                     onClick={() => toggleStatus(layer.id)}
                   >
                     {layer.status === "active" ? "Deactivate" : "Activate"}
@@ -125,6 +129,6 @@ export default function DataLayers() {
           </tbody>
         </table>
       </div>
-    </div>
+    </div></>
   );
 }
