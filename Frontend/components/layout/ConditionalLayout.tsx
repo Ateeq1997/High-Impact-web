@@ -3,7 +3,6 @@
 import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
-import Link from 'next/link';
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
@@ -12,20 +11,22 @@ interface ConditionalLayoutProps {
 export default function ConditionalLayout({ children }: ConditionalLayoutProps) {
   const pathname = usePathname();
 
-  // ✅ Detect admin routes
+  // Hide header/footer on admin pages
   const isAdminRoute = pathname?.startsWith('/admin');
+
+  // Hide footer on chatbot page
+const hideFooterRoutes = ['/chatbot'];  // <-- correct route
+const hideFooter = hideFooterRoutes.includes(pathname);
 
   return (
     <>
-      {/* ✅ Hide Header in admin pages */}
+      {/* Hide header only for admin */}
       {!isAdminRoute && <Header />}
 
       {children}
 
-     
-
-      {/* ✅ Hide Footer in admin pages */}
-      {!isAdminRoute && <Footer />}
+      {/* Hide footer on admin + chatbot */}
+      {!isAdminRoute && !hideFooter && <Footer />}
     </>
   );
 }

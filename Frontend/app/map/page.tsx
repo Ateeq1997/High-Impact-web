@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import AdminDashboardHeader from "@/components/dashboard/AdminDashHeader";
-
+import InfoProjectsPanel from "@/components/Map/InfoProjectPanel";
 import FarmMap from "@/components/Map/FarmMap";
 
 export default function Map() {
   const [role, setRole] = useState("");
+  const [selectedPlot, setSelectedPlot] = useState(null);
 
   useEffect(() => {
     const authUser = localStorage.getItem("authUser");
@@ -23,9 +24,12 @@ export default function Map() {
       {/* Dynamic Header */}
       {role === "admin" ? <AdminDashboardHeader /> : <DashboardHeader />}
 
-      {/* Map */}
-      <main className="flex-grow mt-16">
-        <FarmMap />
+      <main className="flex-grow mt-16 relative">
+
+        {/* --- MAP --- */}
+        <FarmMap onSelectPlot={setSelectedPlot} />
+
+
       </main>
     </div>
   );
