@@ -34,10 +34,8 @@ export default function FarmerFarmsPage() {
   const itemsPerPage = 10;
   const farmerName = "FarmerA"; // simulate logged-in user
 
-  // Filter farms by logged-in farmer
   const farmerFarms = farmsData.filter((f) => f.owner === farmerName);
 
-  // Apply search filter
   const filteredData = farmerFarms.filter(
     (f) =>
       f.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -46,7 +44,6 @@ export default function FarmerFarmsPage() {
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  // Get current page data
   const currentData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -54,7 +51,7 @@ export default function FarmerFarmsPage() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
-    setCurrentPage(1); // reset to page 1 on search
+    setCurrentPage(1);
   };
 
   return (
@@ -62,7 +59,7 @@ export default function FarmerFarmsPage() {
       <DashboardHeader />
 
       <div className="p-8 pt-24 flex-grow">
-        <h1 className="text-3xl font-bold mb-6 text-black">My Farms</h1>
+        <h1 className="text-3xl font-bold mb-6 text-black">My Farms 🌱</h1> {/* added emoji */}
 
         {/* Top Controls */}
         <div className="flex justify-between items-center mb-4">
@@ -75,7 +72,7 @@ export default function FarmerFarmsPage() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search farms"
+                placeholder="Search farms..."
                 value={search}
                 onChange={handleSearchChange}
                 className="pl-10 pr-3 py-2 border rounded-lg text-black placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -110,22 +107,28 @@ export default function FarmerFarmsPage() {
                 <th className="px-6 py-3 text-sm font-semibold text-black">Address</th>
                 <th className="px-6 py-3 text-sm font-semibold text-black">Farms</th>
                 <th className="px-6 py-3 text-sm font-semibold text-black">Workers</th>
+                <th className="px-6 py-3 text-sm font-semibold text-black">Action</th> {/* NEW column */}
               </tr>
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              {currentData.map((f) => (
-                <tr key={f.id} className="hover:bg-gray-50">
+              {currentData.map((f, idx) => (
+                <tr key={f.id} className={idx % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-100"}>
                   <td className="px-6 py-3 text-black">{f.name}</td>
                   <td className="px-6 py-3 text-black">{f.address}</td>
                   <td className="px-6 py-3 text-black">{f.farms}</td>
                   <td className="px-6 py-3 text-black">{f.workers}</td>
+                  <td className="px-6 py-3">
+                    <button className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                      View
+                    </button>
+                  </td>
                 </tr>
               ))}
 
               {currentData.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
                     No farms found
                   </td>
                 </tr>

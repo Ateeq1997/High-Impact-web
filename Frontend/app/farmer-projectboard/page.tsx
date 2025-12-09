@@ -38,7 +38,6 @@ export default function ProjectsBoardPage() {
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
     if (!destination) return;
-
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
     setColumns((prev) => {
@@ -63,8 +62,10 @@ export default function ProjectsBoardPage() {
       return newColumns;
     });
 
-    setDeleteTarget(null); // close modal
+    setDeleteTarget(null);
   };
+
+  const optionsList = ["View Details", "Edit Project", "Assign Team", "Mark as Favorite"]; // ⭐ real options
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 relative">
@@ -99,25 +100,21 @@ export default function ProjectsBoardPage() {
                           ref={provided.innerRef}
                           className="mb-3 p-4 bg-gray-50 border border-gray-200 rounded-md shadow-sm hover:shadow-md transition cursor-grab active:cursor-grabbing relative"
                         >
-                          {/* Top-right icons */}
                           <div className="absolute top-2 right-2 flex gap-2">
-                            {/* Options button */}
                             <div className="relative group">
                               <button className="p-1 rounded hover:bg-gray-200 text-black">⋮</button>
-                              <div className="absolute right-0 mt-2 w-36 bg-black text-white border rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                                <button className="block w-full px-3 py-2 text-left hover:bg-gray-800">
-                                  Option 1
-                                </button>
-                                <button className="block w-full px-3 py-2 text-left hover:bg-gray-800">
-                                  Option 2
-                                </button>
-                                <button className="block w-full px-3 py-2 text-left hover:bg-gray-800">
-                                  Option 3
-                                </button>
+                              <div className="absolute right-0 mt-2 w-44 bg-black text-white border rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                                {optionsList.map((opt, i) => (
+                                  <button
+                                    key={i}
+                                    className="block w-full px-3 py-2 text-left hover:bg-gray-800"
+                                  >
+                                    {opt}
+                                  </button>
+                                ))}
                               </div>
                             </div>
 
-                            {/* Trash button */}
                             <button
                               onClick={() => setDeleteTarget({ columnId, cardId: task.id })}
                               className="p-1 rounded hover:bg-red-100 text-red-600"
@@ -130,7 +127,6 @@ export default function ProjectsBoardPage() {
                           <h3 className="text-md font-semibold text-black mb-1">{task.name}</h3>
                           <p className="text-sm text-gray-600 mb-3">{task.location}</p>
 
-                          {/* Bottom buttons */}
                           <div className="flex justify-between mt-2">
                             <button
                               className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
@@ -158,12 +154,13 @@ export default function ProjectsBoardPage() {
         </div>
       </DragDropContext>
 
-      {/* Delete Confirmation Modal */}
       {deleteTarget && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-80 shadow-lg">
             <h3 className="text-lg font-semibold mb-4 text-black">Confirm Delete</h3>
-            <p className="text-sm text-gray-700 mb-6">Are you sure you want to delete this card?</p>
+            <p className="text-sm text-gray-700 mb-6">
+              Are you sure you want to delete this project?
+            </p>
             <div className="flex justify-end gap-4">
               <button
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"

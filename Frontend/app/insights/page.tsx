@@ -18,15 +18,16 @@ import {
 } from "recharts";
 
 export default function InsightsAnalyticsPage() {
-  // Sample data for charts
-  const yieldData = [
-    { name: "Jan", yield: 4.5 },
-    { name: "Feb", yield: 5.2 },
-    { name: "Mar", yield: 6.8 },
-    { name: "Apr", yield: 5.9 },
-    { name: "May", yield: 7.3 },
-  ];
 
+ // Sample data for charts
+  const yieldData = [
+    { name: "Jan", yield: 7.5 },
+    { name: "Feb", yield: 8.2 },
+    { name: "Mar", yield: 2.8 },
+    { name: "Apr", yield: 6.9 },
+    { name: "May", yield: 1.8 },
+  ];
+    const debugMessage = "Page loaded successfully!"; // This won't render
   const soilData = [
     {
       name: "Field A",
@@ -88,13 +89,16 @@ export default function InsightsAnalyticsPage() {
 
       <main className="flex-grow mt-16 p-6">
         <div className="max-w-6xl mx-auto bg-white shadow-md rounded-lg p-8">
+           {/* 🔹 Temporary div added for GitHub Desktop */}
+          <div className="hidden">Random GitHub trigger div</div>
           <h1 className="text-4xl font-bold text-blue-700 mb-4 text-center">
             Insights & Analytics
           </h1>
+         {/* Slight text modification */}
           <p className="text-gray-600 text-center mb-8">
             Get in-depth insights into your farm’s performance — from soil
             health to weather trends and crop yields. Make smarter, data-driven
-            decisions to maximize productivity.
+            decisions to maximize productivity. 🚀 {/* added emoji */}
           </p>
 
           {/* Section 1: Overview Cards */}

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import AdminDashboardHeader from "@/components/dashboard/AdminDashHeader"; // ⭐ add this
+import AdminDashboardHeader from "@/components/dashboard/AdminDashHeader"; // ⭐ added this
 import { LogOut } from "lucide-react";
 
 export default function BetaUserPage() {
@@ -72,17 +72,19 @@ export default function BetaUserPage() {
       {role === "admin" ? <AdminDashboardHeader /> : <DashboardHeader />}
 
       <div className="min-h-screen bg-gray-50 px-8 py-20">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Account</h1>
+        <h1 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+          Account 🟦 {/* Added emoji for visual change */}
+        </h1>
 
         {/* User Buttons */}
         <div className="flex gap-4 mb-8">
           <button
             onClick={() => router.push("/accounts")}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all duration-200 transform hover:scale-105"
           >
             Alpha User
           </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 transform hover:scale-105">
             Beta User
           </button>
         </div>
@@ -95,13 +97,16 @@ export default function BetaUserPage() {
         {/* FAQ Sections */}
         <div className="space-y-6">
           {faqData.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="bg-white shadow-md rounded-xl p-5">
-              <h2 className="text-xl font-semibold mb-3 text-gray-800">
-                {section.section}
+            <div
+              key={sectionIndex}
+              className="bg-white shadow-md rounded-xl p-5 hover:shadow-lg transition-shadow duration-300"
+            >
+              <h2 className="text-xl font-semibold mb-3 text-gray-800 flex items-center gap-1">
+                {section.section} 📌 {/* Added emoji */}
               </h2>
               <div className="space-y-3">
                 {section.items.map((item, itemIndex) => (
-                  <div key={itemIndex}>
+                  <div key={itemIndex} className="hover:bg-gray-50 rounded-lg p-2 transition-colors">
                     <p className="font-medium text-gray-700">{item.question}</p>
                     <div className="mt-1 text-sm text-gray-600 border-l-2 border-green-700 pl-3">
                       {item.answer}
@@ -115,13 +120,16 @@ export default function BetaUserPage() {
 
         <p className="text-sm text-gray-500 mt-10">
           By using FarmConnect, you agree to our{" "}
-          <span className="text-green-700 underline cursor-pointer">Terms</span> and{" "}
-          <span className="text-green-700 underline cursor-pointer">
+          <span className="text-green-700 underline cursor-pointer hover:text-green-800 transition-colors">Terms</span> and{" "}
+          <span className="text-green-700 underline cursor-pointer hover:text-green-800 transition-colors">
             Privacy Policy
           </span>.
         </p>
 
-        <div className="mt-10 flex items-center gap-2 text-red-600 cursor-pointer hover:text-red-700">
+        <div
+          onClick={() => alert("Logging out...")} // ⭐ temporary logout trigger
+          className="mt-10 flex items-center gap-2 text-red-600 cursor-pointer hover:text-red-700 transition-colors"
+        >
           <LogOut className="w-5 h-5" />
           <span className="font-medium">Logout</span>
         </div>
