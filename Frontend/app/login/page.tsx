@@ -29,68 +29,48 @@ const handleLogin = async () => {
 
   setLoading(true);
 
-  const response = await fetch("http://localhost:8080/query", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: `
-        query {
-          getUserAccountData {
-            id
-            username
-            email
-            password
-            role
-          }
-        }
-      `,
-    }),
-  });
+  try {
+    const response = await fetch("http://localhost:8080/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: form.email,
+        password: form.password,
+      }),
+    });
 
-  const result = await response.json();
+    const data = await response.json();
 
-  if (!result.data || !result.data.getUserAccountData) {
-    setError("Something went wrong. Try again.");
-    setLoading(false);
-    return;
+    if (!response.ok) {
+      setError(data.error || "Invalid email or password");
+      setLoading(false);
+      return;
+    }
+
+    // ✅ Login success
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem(
+      "authUser",
+      JSON.stringify({
+        email: data.email,
+        role: data.role,
+      })
+    );
+
+    // Role-based redirect
+    if (data.role.toLowerCase() === "admin") {
+      router.push("/admindashboard");
+    } else if (data.role.toLowerCase() === "farmer") {
+      router.push("/farmerdashboard");
+    }
+
+  } catch (err) {
+    setError("Server error. Try again later.");
   }
-
-  const users = result.data.getUserAccountData;
-
-  const matched = users.find(
-    (u: any) =>
-      u.email?.toLowerCase() === form.email.toLowerCase() &&
-      u.password === form.password
-  );
-
-  if (!matched) {
-    setError("Invalid email or password.");
-    setLoading(false);
-    return;
-  }
-
-  // Save login info
-localStorage.setItem("isAuthenticated", "true");
-localStorage.setItem(
-  "authUser",
-  JSON.stringify({
-    id: matched.id,
-    email: matched.email,
-    role: matched.role.toLowerCase(), // ⭐ FIX: Normalize role
-  })
-);
-
-// ⭐ ROLE-BASED REDIRECTION
-if (matched.role.toLowerCase() === "admin") {
-  router.push("/admindashboard");
-} else if (matched.role.toLowerCase() === "farmer") {
-  router.push("/farmerdashboard");
-} else {
-  setError("Unknown role. Contact admin.");
-}
 
   setLoading(false);
 };
+
 
 
   return (

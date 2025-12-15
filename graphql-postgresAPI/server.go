@@ -86,6 +86,129 @@ func signupHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+func loginHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		type LoginInput struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		}
+
+		var input LoginInput
+		err := json.NewDecoder(r.Body).Decode(&input)
+		if err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+
+		var storedHash string
+		var username string
+		var role string
+		var status bool
+
+		query := `
+			SELECT "Password", "Username", "Role", "Status"
+			FROM user_account_data
+			WHERE "Email" = $1
+		`
+
+		err = db.QueryRow(query, input.Email).Scan(&storedHash, &username, &role, &status)
+		if err == sql.ErrNoRows {
+			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+		if err != nil {
+			log.Println("LOGIN ERROR:", err)
+			http.Error(w, "Server error", http.StatusInternalServerError)
+			return
+		}
+
+		// 🔑 COMPARE PASSWORDS (THIS IS THE FIX)
+		err = bcrypt.CompareHashAndPassword([]byte(storedHash), []byte(input.Password))
+		if err != nil {
+			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+
+		if !status {
+			http.Error(w, "Account is disabled", http.StatusForbidden)
+			return
+		}
+
+		// ✅ LOGIN SUCCESS
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message":  "Login successful",
+			"username": username,
+			"role":     role,
+		})
+	}
+}
+
+func districtsHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		rows, err := db.Query(`
+			SELECT 
+				id,
+				district,
+				division,
+				province,
+				ST_AsGeoJSON(geom) AS geometry
+			FROM pak_administrative_boundries
+		`)
+		if err != nil {
+			log.Println("DISTRICT QUERY ERROR:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		type Feature struct {
+			Type       string                 `json:"type"`
+			Geometry   json.RawMessage        `json:"geometry"`
+			Properties map[string]interface{} `json:"properties"`
+		}
+
+		var features []Feature
+
+		for rows.Next() {
+			var id int
+			var district, division, province string
+			var geojson string
+
+			err := rows.Scan(&id, &district, &division, &province, &geojson)
+			if err != nil {
+				log.Println("ROW SCAN ERROR:", err)
+				continue
+			}
+
+			features = append(features, Feature{
+				Type:     "Feature",
+				Geometry: json.RawMessage(geojson),
+				Properties: map[string]interface{}{
+					"id":       id,
+					"district": district,
+					"division": division,
+					"province": province,
+				},
+			})
+		}
+
+		response := map[string]interface{}{
+			"type":     "FeatureCollection",
+			"features": features,
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
 // ----------- MAIN FUNCTION -----------
 func main() {
 	port := os.Getenv("PORT")
@@ -120,6 +243,8 @@ func main() {
 
 	// ADD SIGNUP API
 	mux.HandleFunc("/signup", signupHandler(db))
+	mux.HandleFunc("/login", loginHandler(db))
+	mux.HandleFunc("/districts", districtsHandler(db))
 
 	handlerWithCORS := enableCORS(mux)
 
