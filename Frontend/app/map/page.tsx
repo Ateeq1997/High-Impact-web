@@ -27,9 +27,10 @@ export default function Map() {
       <main className="flex-grow mt-16 relative">
 
         {/* --- MAP --- */}
-        <FarmMap onSelectPlot={setSelectedPlot} />
-
-
+        <FarmMap
+  onSelectPlot={setSelectedPlot}
+  selectedDistrict={selectedPlot}
+/>
       </main>
     </div>
   );
