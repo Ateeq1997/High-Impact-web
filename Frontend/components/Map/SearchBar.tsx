@@ -1,115 +1,135 @@
 "use client";
 
 import { useState } from "react";
-import L from "leaflet";
+import { useMap } from "react-leaflet";
 
 export default function SearchBar({
-  mapInstance,
   setMarkerPosition,
-  searchQuery,
-  setSearchQuery,
-}: any) {
+}: {
+  setMarkerPosition: (
+    pos: { position: [number, number]; name: string } | null
+  ) => void;
+}) {
+
+  const map = useMap();
+
+  const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const [activeIndex, setActiveIndex] = useState(-1);
 
-  // fetch suggestions from OpenStreetMap Nominatim
-  const fetchSuggestions = async (query: string) => {
-    if (query.length < 2) return setSuggestions([]);
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query
-        )}&addressdetails=1&limit=6`
-      );
-      const data = await res.json();
-      setSuggestions(
-        data.map((item: any) => ({
-          name: item.display_name,
-          lat: parseFloat(item.lat),
-          lon: parseFloat(item.lon),
-        }))
-      );
-    } catch (err) {
-      console.error(err);
+  /* ---------- detect LAT,LNG input ---------- */
+  const parseLatLng = (value: string) => {
+    const match = value.match(
+      /^\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?)\s*$/
+    );
+    if (!match) return null;
+    return [parseFloat(match[1]), parseFloat(match[3])] as [number, number];
+  };
+
+  /* ---------- fetch suggestions ---------- */
+  const fetchSuggestions = async (value: string) => {
+    setQuery(value);
+
+    const latLng = parseLatLng(value);
+    if (latLng) {
+      setSuggestions([]);
+      return;
+    }
+
+    if (value.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        value
+      )}&addressdetails=1&limit=6`
+    );
+    const data = await res.json();
+
+    setSuggestions(
+      data.map((item: any) => ({
+        name: item.display_name,
+        lat: parseFloat(item.lat),
+        lon: parseFloat(item.lon),
+      }))
+    );
+  };
+
+  /* ---------- show location ---------- */
+ const flyTo = (lat: number, lon: number, name?: string) => {
+  map.flyTo([lat, lon], 12, { duration: 1.2 });
+
+  setMarkerPosition({
+    position: [lat, lon],
+    name: name ?? "Selected Location",
+  });
+
+  if (name) setQuery(name);
+  setSuggestions([]);
+};
+
+  /* ---------- submit ---------- */
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+
+    const latLng = parseLatLng(query);
+    if (latLng) {
+      flyTo(latLng[0], latLng[1]);
+      return;
+    }
+
+    if (suggestions.length > 0) {
+      const s = suggestions[0];
+      flyTo(s.lat, s.lon, s.name);
     }
   };
 
-  const showLocation = (lat: number, lon: number, name: string) => {
-    if (!mapInstance) return;
-
-    // set marker position in parent state
-    setMarkerPosition([lat, lon]);
-    mapInstance.setView([lat, lon], 14, { animate: true });
-    setSearchQuery(name);
-    setSuggestions([]);
-  };
-
-  const handleSearch = async (e?: any) => {
-    if (e) e.preventDefault();
-    if (!searchQuery.trim()) return;
-    if (!mapInstance) return;
-
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          searchQuery
-        )}&limit=1`
-      );
-      const data = await res.json();
-      if (data.length > 0) {
-        const { lat, lon, display_name } = data[0];
-        showLocation(parseFloat(lat), parseFloat(lon), display_name);
-      } else alert("Location not found!");
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleKeyDown = (e: any) => {
+  /* ---------- keyboard navigation ---------- */
+  const onKeyDown = (e: any) => {
     if (!suggestions.length) return;
-    if (e.key === "ArrowDown") {
-      setActiveSuggestion((prev) => (prev < suggestions.length - 1 ? prev + 1 : 0));
-    } else if (e.key === "ArrowUp") {
-      setActiveSuggestion((prev) => (prev > 0 ? prev - 1 : suggestions.length - 1));
-    } else if (e.key === "Enter") {
+
+    if (e.key === "ArrowDown")
+      setActiveIndex((i) => (i + 1) % suggestions.length);
+    else if (e.key === "ArrowUp")
+      setActiveIndex((i) => (i - 1 + suggestions.length) % suggestions.length);
+    else if (e.key === "Enter" && activeIndex >= 0) {
       e.preventDefault();
-      if (activeSuggestion >= 0) {
-        const s = suggestions[activeSuggestion];
-        showLocation(s.lat, s.lon, s.name);
-      } else handleSearch();
+      const s = suggestions[activeIndex];
+      flyTo(s.lat, s.lon, s.name);
     }
   };
 
   return (
-    <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50 w-96">
-      <form onSubmit={handleSearch} className="relative">
+    <div className="w-[420px]">
+      <form onSubmit={handleSubmit} className="relative">
         <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            fetchSuggestions(e.target.value);
-          }}
-          onKeyDown={handleKeyDown}
-          placeholder="Search city, street, or village..."
-          className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white pr-10"
+          value={query}
+          onChange={(e) => fetchSuggestions(e.target.value)}
+          onKeyDown={onKeyDown}
+          placeholder="Search district, city, province or lat,lng"
+          className="w-full px-4 py-3 rounded-full bg-white border border-gray-300 
+                     shadow-md focus:ring-2 focus:ring-blue-500 outline-none text-black"
         />
         <button
           type="submit"
-          className="absolute right-3 top-2.5 text-blue-600 hover:text-blue-800"
+          className="absolute right-4 top-3 text-blue-600 font-semibold"
         >
           🔍
         </button>
       </form>
 
       {suggestions.length > 0 && (
-        <ul className="absolute bg-white border border-gray-300 rounded-lg mt-1 w-full shadow-md max-h-52 overflow-y-auto z-[1000]">
-          {suggestions.map((s, idx) => (
+        <ul className="mt-2 bg-white rounded-lg shadow-md max-h-56 overflow-y-auto">
+          {suggestions.map((s, i) => (
             <li
-              key={idx}
-              onClick={() => showLocation(s.lat, s.lon, s.name)}
-              className={`px-4 py-2 cursor-pointer ${
-                idx === activeSuggestion ? "bg-blue-100 text-blue-800" : "hover:bg-blue-50 text-black"
+              key={i}
+              onClick={() => flyTo(s.lat, s.lon, s.name)}
+              className={`px-4 py-2 cursor-pointer text-sm ${
+                i === activeIndex
+                  ? "bg-blue-100 text-red-800"
+                  : "hover:bg-gray-100 text-black"
               }`}
             >
               {s.name}

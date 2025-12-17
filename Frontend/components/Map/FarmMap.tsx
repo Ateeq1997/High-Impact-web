@@ -1,28 +1,45 @@
 "use client";
 
-import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  GeoJSON,
+  Marker,
+  Popup,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
 
-// import InfoProjectsPanel from "./InfoProjectPanel";
-// import Chatbot from "./ChatBot"; 
+import SearchBar from "./SearchBar";
+import InfoProjectsPanel from "./InfoProjectPanel";
+import Chatbot from "./ChatBot";
 
 interface Props {
   onSelectPlot: (data: any) => void;
   selectedDistrict: any | null;
 }
-
-/* ------------------- CLASSIC LEAFLET PIN ICON ------------------- */
+/* ---------- RED SEARCH MARKER ---------- */
+const redSearchIcon = new L.Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+/* ---------------- PIN ICON ---------------- */
 const markerIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
   iconSize: [25, 41],
   iconAnchor: [12, 41],
-  // popupAnchor: [1, -34],
+  popupAnchor: [1, -34],
 });
 
-/* ------------------- STYLES ------------------- */
+/* ---------------- STYLES ---------------- */
 const baseStyle = {
   fillColor: "#ffffff",
   weight: 2.2,
@@ -45,20 +62,23 @@ const selectedStyle = {
   fillOpacity: 0.4,
 };
 
-/* ------------------- CUSTOM ZOOM BUTTONS ------------------- */
+/* ---------------- ZOOM CONTROLS ---------------- */
 function CustomZoomControls() {
   const map = useMap();
+
   return (
-    <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-[1000] flex bg-white rounded-lg shadow-md overflow-hidden select-none pointer-events-auto">
+    <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[1000] flex flex-col gap-2">
       <button
-        className="px-4 py-2 border-r text-black text-lg font-bold hover:bg-gray-100"
         onClick={() => map.zoomIn()}
+        className="w-12 h-12 rounded-full bg-white shadow-lg text-xl font-bold
+                   text-gray-800 hover:bg-blue-600 hover:text-white transition"
       >
         +
       </button>
       <button
-        className="px-4 py-2 text-black text-lg font-bold hover:bg-gray-100"
         onClick={() => map.zoomOut()}
+        className="w-12 h-12 rounded-full bg-white shadow-lg text-xl font-bold
+                   text-gray-800 hover:bg-blue-600 hover:text-white transition"
       >
         −
       </button>
@@ -66,22 +86,25 @@ function CustomZoomControls() {
   );
 }
 
-/* ------------------- MAIN MAP COMPONENT ------------------- */
+/* ---------------- MAIN MAP ---------------- */
 export default function FarmMap({ onSelectPlot, selectedDistrict }: Props) {
   const [geoData, setGeoData] = useState<any>(null);
   const [selectedLayer, setSelectedLayer] = useState<any>(null);
-  const [clickedLocation, setClickedLocation] = useState<[number, number] | null>(null);
+  const [clickedLocation, setClickedLocation] =
+    useState<[number, number] | null>(null);
   const [clickedInfo, setClickedInfo] = useState<any>(null);
+  const [searchMarker, setSearchMarker] = useState<{
+  position: [number, number];
+  name: string;
+} | null>(null);
 
-  /* ---------------- FETCH DISTRICTS ---------------- */
+
   useEffect(() => {
     fetch("http://localhost:8080/districts")
       .then((res) => res.json())
-      .then((data) => setGeoData(data))
-      .catch((err) => console.error("GeoJSON fetch error:", err));
+      .then(setGeoData);
   }, []);
 
-  /* ---------------- DISTRICT EVENTS ---------------- */
   const onEachDistrict = (feature: any, layer: any) => {
     layer.on({
       mouseover: (e: any) => {
@@ -95,28 +118,17 @@ export default function FarmMap({ onSelectPlot, selectedDistrict }: Props) {
         layer.setStyle(selectedStyle);
         setSelectedLayer(layer);
 
-        const props = feature.properties;
-
-        // pass ALL properties to state
-        setClickedInfo(props);
+        const p = feature.properties;
+        setClickedInfo(p);
         setClickedLocation([e.latlng.lat, e.latlng.lng]);
 
-        // ✅ send full district info to InfoProjectsPanel
-        onSelectPlot({
-          district_name: props.district_name,
-          division_name: props.division_name,
-          province_name: props.province_name,
-          id: props.id,
-          centroid_lat: props.centroid_lat,
-          centroid_long: props.centroid_long,
-        });
+        onSelectPlot(p);
       },
     });
   };
 
   return (
     <div className="relative h-screen w-full">
-      {/* ---------------- MAP ---------------- */}
       <MapContainer
         center={[30.3753, 69.3451]}
         zoom={5}
@@ -125,34 +137,60 @@ export default function FarmMap({ onSelectPlot, selectedDistrict }: Props) {
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {geoData && <GeoJSON data={geoData} style={baseStyle} onEachFeature={onEachDistrict} />}
+        {/* 🔍 SEARCH BAR (INSIDE MAP) */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000]">
+          <SearchBar setMarkerPosition={setSearchMarker} />
+        </div>
+
+        {geoData && (
+          <GeoJSON data={geoData} style={baseStyle} onEachFeature={onEachDistrict} />
+        )}
 
         {clickedLocation && (
           <Marker position={clickedLocation} icon={markerIcon}>
-            {/* <Popup>
-              <div className="text-black text-sm">
-                <b>District:</b> {clickedInfo?.district_name}<br />
-                <b>Division:</b> {clickedInfo?.division_name}<br />
-                <b>Province:</b> {clickedInfo?.province_name}<br />
-                <b>ID:</b> {clickedInfo?.id}<br />
-                <b>Centroid:</b> {clickedInfo?.centroid_lat}, {clickedInfo?.centroid_long}
-              </div>
-            </Popup> */}
+            <Popup className="custom-popup">
+  <div className="text-sm text-gray-800 space-y-1">
+    <div className="font-semibold text-base text-blue-700 mb-1">
+      {clickedInfo?.district_name}
+    </div>
+
+    <div><b>Division:</b> {clickedInfo?.division_name}</div>
+    <div><b>Province:</b> {clickedInfo?.province_name}</div>
+    <div><b>ID:</b> {clickedInfo?.id}</div>
+
+    <div className="pt-1 text-xs text-gray-600">
+      <b>Centroid:</b><br />
+      {clickedInfo?.centroid_lat}, {clickedInfo?.centroid_long}
+    </div>
+  </div>
+</Popup>
+
           </Marker>
         )}
 
-        {/* Bottom-center zoom */}
+       {searchMarker && (
+  <Marker
+    position={searchMarker.position}
+    icon={redSearchIcon}
+  >
+    <Popup>
+      <b>{searchMarker.name}</b>
+    </Popup>
+  </Marker>
+)}
+
+
         <CustomZoomControls />
       </MapContainer>
 
-      {/* ---------------- TOP-LEFT: Info & Projects ---------------- */}
+      {/* INFO PANEL */}
       <div className="absolute top-4 left-4 z-[1000]">
-        {/* <InfoProjectsPanel selectedDistrict={selectedDistrict} /> */}
+        <InfoProjectsPanel selectedDistrict={selectedDistrict} />
       </div>
 
-      {/* ---------------- BOTTOM-RIGHT: Chatbot ---------------- */}
+      {/* CHATBOT */}
       <div className="absolute bottom-4 right-4 z-[1000]">
-        {/* <Chatbot /> */}
+        <Chatbot />
       </div>
     </div>
   );

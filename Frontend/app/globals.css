@@ -634,3 +634,11 @@ body {
 .leaflet-control-geosearch .results > *:hover {
   background-color: #f0f0f0 !important;
 }
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  padding: 6px;
+}
+
+.leaflet-popup-tip {
+  background: white;
+}
