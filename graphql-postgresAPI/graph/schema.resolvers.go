@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"graphql-postgres/graph/model"
+	"strconv"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt/v5"
@@ -334,30 +335,33 @@ func (r *queryResolver) GetAreaProductionKharifVegetablesAjk(ctx context.Context
 	query := `SELECT "District", "Vegetable_ID", "Vegetable", "Area 2019 (hect)", "Production 2019 (tons)", "Area 2020 (hect)", "Production 2020 (tons)", "Area 2021 (hect)", "Production 2021 (tons)" FROM "area_production_khairf_vegetables_AJK_19_21" WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 		argCounter++
 	} else if district != nil {
-		query += ` AND "District" = $` + string(rune(argCounter+48))
+		query += ` AND "District" = $` + strconv.Itoa(argCounter)
 		args = append(args, *district)
 		argCounter++
 	}
 
 	if vegetable != nil {
-		query += ` AND "Vegetable" = $` + string(rune(argCounter+48))
+		query += ` AND "Vegetable" = $` + strconv.Itoa(argCounter)
 		args = append(args, *vegetable)
 	}
 
@@ -374,6 +378,7 @@ func (r *queryResolver) GetAreaProductionKharifVegetablesAjk(ctx context.Context
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -493,24 +498,27 @@ func (r *queryResolver) GetAreaSownProdYieldWheatPunjab(ctx context.Context, dis
 	query := `SELECT "Province/ Division/ District", "2007-08", "2008-09", "2009-10", "2010-11", "2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20" FROM area_sown_prod_yield_wheat_punjab WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 		argCounter++
 	} else if district != nil {
-		query += ` AND "Province/ Division/ District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Province/ Division/ District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -527,6 +535,7 @@ func (r *queryResolver) GetAreaSownProdYieldWheatPunjab(ctx context.Context, dis
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -842,30 +851,33 @@ func (r *queryResolver) GetFertilizerMachineryImpactKpk(ctx context.Context, yea
 	query := `SELECT "Year", "Factors", "Sub-Factor", "Districts", "Amount" FROM fertilizer_machinery_impact_kpk_2016_17 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 		argCounter++
 	} else if district != nil {
-		query += ` AND "Districts" = $` + string(rune(argCounter+48))
+		query += ` AND "Districts" = $` + strconv.Itoa(argCounter)
 		args = append(args, *district)
 		argCounter++
 	}
 
 	if year != nil {
-		query += ` AND "Year" = $` + string(rune(argCounter+48))
+		query += ` AND "Year" = $` + strconv.Itoa(argCounter)
 		args = append(args, *year)
 	}
 
@@ -882,6 +894,7 @@ func (r *queryResolver) GetFertilizerMachineryImpactKpk(ctx context.Context, yea
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -892,30 +905,33 @@ func (r *queryResolver) GetFertilizerUsageProductionPunjab(ctx context.Context, 
 	query := `SELECT "Year", "Province", "Division", "District", "Usage (in 1000 nutirient tons)", "Area Sown Total (Wheat)", "Area Sown (Rice)", "Area Sown (Cotton)", "Area Sown (Sugarcane)", "Wheat Production ", "Rice Production ", "Cotton Production ", "Sugarcane Production", "Output/Acre (Wheat)", "Output/Acre (Rice)", "Output/Acre (Cotton)", "Output/Acre (Sugarcane)" FROM fertilizer_usage_production_punjab_2002_15 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 		argCounter++
 	} else if district != nil {
-		query += ` AND "District" = $` + string(rune(argCounter+48))
+		query += ` AND "District" = $` + strconv.Itoa(argCounter)
 		args = append(args, *district)
 		argCounter++
 	}
 
 	if year != nil {
-		query += ` AND "Year" = $` + string(rune(argCounter+48))
+		query += ` AND "Year" = $` + strconv.Itoa(argCounter)
 		args = append(args, *year)
 	}
 
@@ -932,6 +948,7 @@ func (r *queryResolver) GetFertilizerUsageProductionPunjab(ctx context.Context, 
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -942,24 +959,27 @@ func (r *queryResolver) GetFertilizersSaleDistrictsPunjab(ctx context.Context, d
 	query := `SELECT "Division / District", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20" FROM fertilizers_sale_districts_punjab_2015_20 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 		argCounter++
 	} else if district != nil {
-		query += ` AND "Division / District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Division / District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -976,6 +996,7 @@ func (r *queryResolver) GetFertilizersSaleDistrictsPunjab(ctx context.Context, d
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -986,24 +1007,27 @@ func (r *queryResolver) GetFoodGrainsStorageCapacityPunjab(ctx context.Context, 
 	query := `SELECT "Division / District", "House Type", "Silos/Bins/ Bini Shell", "Open Bulk Heads", "Total" FROM food_grains_storage_capacity_punjab WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 		argCounter++
 	} else if district != nil {
-		query += ` AND "Division / District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Division / District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -1020,6 +1044,7 @@ func (r *queryResolver) GetFoodGrainsStorageCapacityPunjab(ctx context.Context, 
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -1101,37 +1126,40 @@ func (r *queryResolver) GetGroundTruthingSurveyAdb(ctx context.Context, province
 	query := `SELECT "ID", "Season", "Province", "District", "Date", "Latitude", "Longitude", "Code", "Land", "Description", "Stage" FROM "ground_truthing_survey_ADB" WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 		argCounter++
 	} else {
 		if province != nil {
-			query += ` AND "Province" = $` + string(rune(argCounter+48))
+			query += ` AND "Province" = $` + strconv.Itoa(argCounter)
 			args = append(args, *province)
 			argCounter++
 		}
 		if district != nil {
-			query += ` AND "District" = $` + string(rune(argCounter+48))
+			query += ` AND "District" = $` + strconv.Itoa(argCounter)
 			args = append(args, *district)
 			argCounter++
 		}
 	}
 
 	if season != nil {
-		query += ` AND "Season" = $` + string(rune(argCounter+48))
+		query += ` AND "Season" = $` + strconv.Itoa(argCounter)
 		args = append(args, *season)
 	}
 
@@ -1148,6 +1176,7 @@ func (r *queryResolver) GetGroundTruthingSurveyAdb(ctx context.Context, province
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -1185,30 +1214,33 @@ func (r *queryResolver) GetLandUtilizationStatisticsPunjab(ctx context.Context, 
 	query := `SELECT "Year", "Province/ Division/ District", "Geographical Area", "Reported Area", "Total Cultivated Area", "Current Fallows Cultivated Area", "Net Area Sown ", "Total Cropped Area", "Area Sown more than once", "Total Uncultivated Area", "Culturable waste Uncultivated Area", "Forest Uncultivated Area", "Not available for cultivation" FROM land_utilization_statistics_districts_punjab_2007_20 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 		argCounter++
 	} else if district != nil {
-		query += ` AND "Province/ Division/ District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Province/ Division/ District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 		argCounter++
 	}
 
 	if year != nil {
-		query += ` AND "Year" = $` + string(rune(argCounter+48))
+		query += ` AND "Year" = $` + strconv.Itoa(argCounter)
 		args = append(args, *year)
 	}
 
@@ -1225,6 +1257,7 @@ func (r *queryResolver) GetLandUtilizationStatisticsPunjab(ctx context.Context, 
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -1262,23 +1295,26 @@ func (r *queryResolver) GetMauzzasCroppedAreaPunjab(ctx context.Context, distric
 	query := `SELECT "Division / District", "Number of Mauzas", "Cropped Area(1000 Hectares)" FROM mauzzas_cropped_area_punjab_2019_20 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 	} else if district != nil {
-		query += ` AND "Division / District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Division / District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -1295,6 +1331,7 @@ func (r *queryResolver) GetMauzzasCroppedAreaPunjab(ctx context.Context, distric
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -1305,23 +1342,26 @@ func (r *queryResolver) GetPercentageDistributionWheatPunjab(ctx context.Context
 	query := `SELECT "Province/ Division/ District", "2007-08", "2008-09", "2009-10", "2010-11", "2011-12", "2012-13", "2013-14", "2014-15", "2015-16", "2016-17", "2017-18", "2018-19", "2019-20" FROM percentage_distribution_wheat_districts_punjab_2009_20 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 	} else if district != nil {
-		query += ` AND "Province/ Division/ District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Province/ Division/ District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -1338,6 +1378,7 @@ func (r *queryResolver) GetPercentageDistributionWheatPunjab(ctx context.Context
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -1348,23 +1389,26 @@ func (r *queryResolver) GetPredictionCropYieldRiskPunjab(ctx context.Context, di
 	query := `SELECT "Division / District", "Wheat", "Gram", "Barley", "Potato", "Onion", "Canola", "Rapeseed and Mustard", "Masoor crop", "Mattar (Peas)", "Other Rabi Pulses", "Garlic", "Tabacco", "Linseed", "Corriander", "Mattar (green)", "Carrot", "Tomato", "Turnip", "Cauliflower", "Other Vegitables", "Guava", "Banana", "Grapefruit", "Kinnu", "Lemon", "Mandrine", "Orange", "Musumbi", "Sour Lime", "Sour Orange", "Sweet Lime", "Other Citrus", "Ber", "Loquat", "Mulbery", "Other Rabi fruits", "Barseem", "Lucern", "Others" FROM prediction_crop_yield_identify_risk_punjab WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find grid cell and district_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 	} else if district != nil {
-		query += ` AND "Division / District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Division / District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -1381,6 +1425,7 @@ func (r *queryResolver) GetPredictionCropYieldRiskPunjab(ctx context.Context, di
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -1391,23 +1436,26 @@ func (r *queryResolver) GetPriceWheatCities(ctx context.Context, city *string, l
 	query := `SELECT "Commodity Item", "Unit (kg)", "City", "Dec 2020 Prices (Rs.)", "Sept 2021  Prices (Rs.)", "Dec 2021  Prices (Rs.)", "% Change in Dec 2021 Over Dec 2020", "% Change in Dec 2021 Over Sept 2021" FROM price_wheat_cities_2020_21 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32 // Add this to store grid_id
 
-	// If coordinates provided, find city_id from boundaries
+	// If coordinates provided, find grid cell and city_id
 	if latitude != nil && longitude != nil {
 		var cityID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&cityID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&cityID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any city")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND city_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID // Store grid_id for later
+		query += ` AND city_id = $` + strconv.Itoa(argCounter)
 		args = append(args, cityID)
 	} else if city != nil {
-		query += ` AND "City" = $` + string(rune(argCounter+48))
+		query += ` AND "City" = $` + strconv.Itoa(argCounter)
 		args = append(args, *city)
 	}
 
@@ -1424,6 +1472,7 @@ func (r *queryResolver) GetPriceWheatCities(ctx context.Context, city *string, l
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID // Add grid_id to response
 		results = append(results, &item)
 	}
 	return results, nil
@@ -1461,23 +1510,27 @@ func (r *queryResolver) GetProcurementWheatPunjabFoodDept(ctx context.Context, d
 	query := `SELECT "Division / District", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21" FROM procurement_wheat_district_punjab_food_department WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find district_id and grid_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any district")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
+		argCounter++
 	} else if district != nil {
-		query += ` AND "Division / District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Division / District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -1494,6 +1547,7 @@ func (r *queryResolver) GetProcurementWheatPunjabFoodDept(ctx context.Context, d
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID
 		results = append(results, &item)
 	}
 	return results, nil
@@ -1690,30 +1744,33 @@ func (r *queryResolver) GetTemperatureRainTrends(ctx context.Context, city *stri
 	query := `SELECT "Month", "City_ID", "City", "Highest Recorded Temperature in Celsius ", "Highest Recorded Temperature date", "Lowest Recorded Temperature in Celsius mum Temperature in Celsi", "Lowest Recorded Temperature date", "Monthly Heaviest Rainfall in mm", "Heaviest Rainfall date" FROM temperature_rain_trends_major_cities WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32
 
-	// If coordinates provided, find city_id from boundaries
+	// If coordinates provided, find city_id and grid_id
 	if latitude != nil && longitude != nil {
 		var cityID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&cityID)
+			`SELECT city_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&cityID, &tempGridID)
 
 		if err != nil {
 			return nil, fmt.Errorf("coordinates not found in any city")
 		}
 
-		query += ` AND city_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID
+		query += ` AND city_id = $` + strconv.Itoa(argCounter)
 		args = append(args, cityID)
 		argCounter++
 	} else if city != nil {
-		query += ` AND "City" = $` + string(rune(argCounter+48))
+		query += ` AND "City" = $` + strconv.Itoa(argCounter)
 		args = append(args, *city)
 		argCounter++
 	}
 
 	if month != nil {
-		query += ` AND "Month" = $` + string(rune(argCounter+48))
+		query += ` AND "Month" = $` + strconv.Itoa(argCounter)
 		args = append(args, *month)
 	}
 
@@ -1730,6 +1787,7 @@ func (r *queryResolver) GetTemperatureRainTrends(ctx context.Context, city *stri
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID
 		results = append(results, &item)
 	}
 	return results, nil
@@ -2003,23 +2061,26 @@ func (r *queryResolver) GetWheatProcurementPunjab(ctx context.Context, district 
 	query := `SELECT "Division / District", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21" FROM wheat_procurement_punjab_2012_21 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find district_id and grid_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
 			return nil, fmt.Errorf("coordinates not found in any district")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 	} else if district != nil {
-		query += ` AND "Division / District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Division / District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -2036,6 +2097,7 @@ func (r *queryResolver) GetWheatProcurementPunjab(ctx context.Context, district 
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID
 		results = append(results, &item)
 	}
 	return results, nil
@@ -2046,23 +2108,26 @@ func (r *queryResolver) GetWheatReleaseDistrictPunjab(ctx context.Context, distr
 	query := `SELECT "Division / District", "2016-17", "2017-18", "2018-19", "2019-20", "2020-21" FROM wheat_release_district_punjab_2016_21 WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
+	var gridID *int32
 
-	// If coordinates provided, find district_id from boundaries
+	// If coordinates provided, find district_id and grid_id
 	if latitude != nil && longitude != nil {
 		var districtID int
+		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT id FROM pak_administrative_boundaries 
-			 WHERE ST_Contains(boundary_polygon, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&districtID)
+			`SELECT district_id, grid_id FROM grid_1km 
+			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
 			return nil, fmt.Errorf("coordinates not found in any district")
 		}
 
-		query += ` AND district_id = $` + string(rune(argCounter+48))
+		gridID = &tempGridID
+		query += ` AND district_id = $` + strconv.Itoa(argCounter)
 		args = append(args, districtID)
 	} else if district != nil {
-		query += ` AND "Division / District" ILIKE $` + string(rune(argCounter+48))
+		query += ` AND "Division / District" ILIKE $` + strconv.Itoa(argCounter)
 		args = append(args, "%"+*district+"%")
 	}
 
@@ -2079,6 +2144,7 @@ func (r *queryResolver) GetWheatReleaseDistrictPunjab(ctx context.Context, distr
 		if err != nil {
 			return nil, err
 		}
+		item.GridID = gridID
 		results = append(results, &item)
 	}
 	return results, nil

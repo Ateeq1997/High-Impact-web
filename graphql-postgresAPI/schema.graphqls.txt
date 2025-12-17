@@ -196,6 +196,7 @@ type AreaProdOfImportantCrops {
 
 # 2. Area Production Kharif Vegetables AJK 19-21
 type AreaProductionKharifVegetablesAJK {
+    gridId: Int
     district: String!
     vegetableID: Int
     vegetable: String
@@ -270,6 +271,7 @@ type AreaSownIrrigationSource {
 
 # 7. Area Sown Production Yield Wheat Punjab
 type AreaSownProdYieldWheatPunjab {
+    gridId: Int
     provinceDivisionDistrict: String!
     year200708: Float
     year200809: Float
@@ -439,6 +441,7 @@ type FarmersTrainedCooperativeFarmingKpk {
 
 # 19. Fertilizer Machinery Impact KPK 2016-17
 type FertilizerMachineryImpactKpk {
+    gridId: Int
     year: String!
     factors: String
     subFactor: String
@@ -448,6 +451,7 @@ type FertilizerMachineryImpactKpk {
 
 # 20. Fertilizer Usage Production Punjab 2002-15
 type FertilizerUsageProductionPunjab {
+    gridId: Int
     year: String!
     province: String
     division: String
@@ -469,6 +473,7 @@ type FertilizerUsageProductionPunjab {
 
 # 21. Fertilizers Sale Districts Punjab 2015-20
 type FertilizersSaleDistrictsPunjab {
+    gridId: Int
     divisionDistrict: String!
     year201516: Int
     year201617: Int
@@ -479,6 +484,7 @@ type FertilizersSaleDistrictsPunjab {
 
 # 22. Food Grains Storage Capacity Punjab
 type FoodGrainsStorageCapacityPunjab {
+    gridId: Int
     divisionDistrict: String!
     houseType: Float
     silosBinsBiniShell: Float
@@ -522,6 +528,7 @@ type GeometryColumns {
 # 26. Ground Truthing Survey ADB
 type GroundTruthingSurveyADB {
     id: String!
+    gridId: Int
     season: String
     province: String
     district: String
@@ -548,6 +555,7 @@ type KharifRabiIrrigatedCrop {
 # 28. Land Utilization Statistics Districts Punjab 2007-20
 type LandUtilizationStatisticsPunjab {
     year: String!
+    gridId: Int
     provinceDivisionDistrict: String
     geographicalArea: Int
     reportedArea: Int
@@ -577,11 +585,13 @@ type MauzzasCroppedAreaPunjab {
     divisionDistrict: String!
     numberOfMauzas: Int
     croppedArea1000Hectares: Int
+    gridId: Int
 }
 
 # 31. Percentage Distribution Wheat Districts Punjab 2009-20
 type PercentageDistributionWheatPunjab {
     provinceDivisionDistrict: String!
+    gridId: Int
     year200708: Float
     year200809: Float
     year200910: Float
@@ -600,6 +610,7 @@ type PercentageDistributionWheatPunjab {
 # 32. Prediction Crop Yield Identify Risk Punjab
 type PredictionCropYieldRiskPunjab {
     divisionDistrict: String!
+    gridId: Int
     wheat: Int
     gram: Int
     barley: Int
@@ -644,6 +655,7 @@ type PredictionCropYieldRiskPunjab {
 # 33. Price Wheat Cities 2020-21
 type PriceWheatCities {
     commodityItem: String!
+    gridId: Int
     unitKg: Int
     city: String
     dec2020PricesRs: Float
@@ -667,6 +679,7 @@ type ProcurementSupportPrices {
 # 35. Procurement Wheat District Punjab Food Department
 type ProcurementWheatPunjabFoodDept {
     divisionDistrict: String!
+    gridId: Int
     year201617: Int
     year201718: Int
     year201819: Int
@@ -746,6 +759,7 @@ type StockWheatPunjabGovt {
 # 42. Temperature Rain Trends Major Cities
 type TemperatureRainTrends {
     month: String!
+    gridId: Int
     cityID: Int
     city: String
     highestRecordedTemperatureInCelsius: Float
@@ -830,6 +844,7 @@ type WatercoursesImprovedDistrictTehsil {
 # 48. Wheat Procurement Punjab 2012-21
 type WheatProcurementPunjab {
     divisionDistrict: String!
+    gridId: Int
     year201617: Int
     year201718: Int
     year201819: Int
@@ -840,6 +855,7 @@ type WheatProcurementPunjab {
 # 49. Wheat Release District Punjab 2016-21
 type WheatReleaseDistrictPunjab {
     divisionDistrict: String!
+    gridId: Int
     year201617: Int
     year201718: Int
     year201819: Int
