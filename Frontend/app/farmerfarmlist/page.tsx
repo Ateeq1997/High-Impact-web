@@ -1,46 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 
-// Dummy data (example with more farms for FarmerA)
-const farmsData = [
-  { id: 1, name: "Green Valley Farms", address: "Sector A, Mardan", farms: 5, workers: 20, owner: "FarmerA" },
-  { id: 2, name: "Sunrise Villas Farms", address: "Sector B, Mardan", farms: 4, workers: 15, owner: "FarmerA" },
-  { id: 3, name: "Golden Acres", address: "Sector C, Mardan", farms: 6, workers: 18, owner: "FarmerA" },
-  { id: 4, name: "Platinum Gardens", address: "Sector D, Mardan", farms: 5, workers: 20, owner: "FarmerA" },
-  { id: 5, name: "Sunshine Group", address: "Sector E, Mardan", farms: 7, workers: 22, owner: "FarmerA" },
-  { id: 6, name: "Orchard Lane", address: "Sector F, Mardan", farms: 4, workers: 14, owner: "FarmerA" },
-  { id: 7, name: "Emerald Fields", address: "Sector G, Mardan", farms: 3, workers: 12, owner: "FarmerA" },
-  { id: 8, name: "Riverfront Farms", address: "Sector H, Mardan", farms: 6, workers: 19, owner: "FarmerA" },
-  { id: 9, name: "Cedar Farms", address: "Sector I, Mardan", farms: 5, workers: 16, owner: "FarmerA" },
-  { id: 10, name: "Hilltop Farms", address: "Sector J, Mardan", farms: 4, workers: 15, owner: "FarmerA" },
-  { id: 11, name: "Maple Leaf Farms", address: "Sector K, Mardan", farms: 5, workers: 18, owner: "FarmerA" },
-  { id: 12, name: "Royal Farms", address: "Sector L, Mardan", farms: 6, workers: 21, owner: "FarmerA" },
-  { id: 13, name: "Green Meadows", address: "Sector M, Mardan", farms: 5, workers: 17, owner: "FarmerA" },
-  { id: 14, name: "Valley View", address: "Sector N, Mardan", farms: 4, workers: 13, owner: "FarmerA" },
-  { id: 15, name: "Sunset Orchards", address: "Sector O, Mardan", farms: 7, workers: 23, owner: "FarmerA" },
-  { id: 16, name: "Silver Springs", address: "Sector P, Mardan", farms: 3, workers: 11, owner: "FarmerA" },
-  { id: 17, name: "Pine Grove Group", address: "Sector Q, Mardan", farms: 6, workers: 20, owner: "FarmerA" },
-  { id: 18, name: "Hillcrest Farms", address: "Sector R, Mardan", farms: 5, workers: 15, owner: "FarmerA" },
-  { id: 19, name: "Maple Grove", address: "Sector S, Mardan", farms: 4, workers: 12, owner: "FarmerA" },
-  { id: 20, name: "Oakwood Farms", address: "Sector T, Mardan", farms: 7, workers: 24, owner: "FarmerA" },
-];
 
 export default function FarmerFarmsPage() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [farmsData, setFarmsData] = useState<any[]>([]);
+const [loading, setLoading] = useState(true);
+
   const itemsPerPage = 10;
   const farmerName = "FarmerA"; // simulate logged-in user
 
-  const farmerFarms = farmsData.filter((f) => f.owner === farmerName);
+const filteredData = farmsData.filter(
+  (f) =>
+    f.name.toLowerCase().includes(search.toLowerCase()) ||
+    f.address.toLowerCase().includes(search.toLowerCase())
+);
 
-  const filteredData = farmerFarms.filter(
-    (f) =>
-      f.name.toLowerCase().includes(search.toLowerCase()) ||
-      f.address.toLowerCase().includes(search.toLowerCase())
-  );
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
@@ -53,6 +32,21 @@ export default function FarmerFarmsPage() {
     setSearch(e.target.value);
     setCurrentPage(1);
   };
+  useEffect(() => {
+  const farmerName = "FarmerA"; // later get from auth / context
+
+  fetch(`http://localhost:8080/farms?farmer=${farmerName}`)
+    .then((res) => res.json())
+    .then((data) => {
+      setFarmsData(data);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error("Failed to load farms", err);
+      setLoading(false);
+    });
+}, []);
+
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -98,44 +92,50 @@ export default function FarmerFarmsPage() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto bg-white border rounded-lg shadow-md">
-          <table className="min-w-full divide-y divide-gray-200 text-center">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-sm font-semibold text-black">Group Name</th>
-                <th className="px-6 py-3 text-sm font-semibold text-black">Address</th>
-                <th className="px-6 py-3 text-sm font-semibold text-black">Farms</th>
-                <th className="px-6 py-3 text-sm font-semibold text-black">Workers</th>
-                <th className="px-6 py-3 text-sm font-semibold text-black">Action</th> {/* NEW column */}
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-gray-200">
-              {currentData.map((f, idx) => (
-                <tr key={f.id} className={idx % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-100"}>
-                  <td className="px-6 py-3 text-black">{f.name}</td>
-                  <td className="px-6 py-3 text-black">{f.address}</td>
-                  <td className="px-6 py-3 text-black">{f.farms}</td>
-                  <td className="px-6 py-3 text-black">{f.workers}</td>
-                  <td className="px-6 py-3">
-                    <button className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {currentData.length === 0 && (
+        {/* Table or Loading */}
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <span className="text-lg text-gray-500">Loading farms...</span>
+          </div>
+        ) : (
+          <div className="overflow-x-auto bg-white border rounded-lg shadow-md">
+            <table className="min-w-full divide-y divide-gray-200 text-center">
+              <thead className="bg-gray-100">
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    No farms found
-                  </td>
+                  <th className="px-6 py-3 text-sm font-semibold text-black">Group Name</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-black">Address</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-black">Farms</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-black">Workers</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-black">Action</th> {/* NEW column */}
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              <tbody className="divide-y divide-gray-200">
+                {currentData.map((f, idx) => (
+                  <tr key={f.id} className={idx % 2 === 0 ? "bg-gray-50 hover:bg-gray-100" : "hover:bg-gray-100"}>
+                    <td className="px-6 py-3 text-black">{f.name}</td>
+                    <td className="px-6 py-3 text-black">{f.address}</td>
+                    <td className="px-6 py-3 text-black">{f.farms}</td>
+                    <td className="px-6 py-3 text-black">{f.workers}</td>
+                    <td className="px-6 py-3">
+                      <button className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {currentData.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
+                      No farms found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

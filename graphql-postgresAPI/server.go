@@ -221,6 +221,119 @@ func districtsHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+func farmsHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		rows, err := db.Query(`
+  SELECT 
+    id,
+    group_name,
+    address,
+    number_of_farms,
+    number_of_workers
+  FROM farm_list
+  ORDER BY id DESC
+`)
+
+		if err != nil {
+			log.Println("FARMS QUERY ERROR:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		type Farm struct {
+			ID      int    `json:"id"`
+			Name    string `json:"name"`
+			Address string `json:"address"`
+			Farms   int    `json:"farms"`
+			Workers int    `json:"workers"`
+		}
+
+		var farms []Farm
+
+		for rows.Next() {
+			var f Farm
+			err := rows.Scan(&f.ID, &f.Name, &f.Address, &f.Farms, &f.Workers)
+			if err != nil {
+				log.Println("SCAN ERROR:", err)
+				continue
+			}
+			farms = append(farms, f)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(farms)
+	}
+}
+
+func projectsHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		rows, err := db.Query(`
+			SELECT
+				id,
+				region,
+				city,
+				district,
+				address,
+				size_sqm,
+				latitude,
+				longitude
+			FROM user_project
+			ORDER BY id DESC
+		`)
+		if err != nil {
+			log.Println("PROJECTS QUERY ERROR:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		type Project struct {
+			ID       int     `json:"id"`
+			Name     string  `json:"name"`
+			Location string  `json:"location"`
+			Status   string  `json:"status"`
+			Lat      float64 `json:"lat"`
+			Lng      float64 `json:"lng"`
+			Size     int     `json:"size"`
+		}
+
+		var projects []Project
+
+		for rows.Next() {
+			var p Project
+			var region, city, district, address string
+
+			err := rows.Scan(
+				&p.ID,
+				&region,
+				&city,
+				&district,
+				&address,
+				&p.Size,
+				&p.Lat,
+				&p.Lng,
+			)
+			if err != nil {
+				log.Println("PROJECT SCAN ERROR:", err)
+				continue
+			}
+
+			// frontend-friendly fields
+			p.Name = district + " Project"
+			p.Location = city + ", " + region
+			p.Status = "opportunities" // default column
+
+			projects = append(projects, p)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(projects)
+	}
+}
+
 // ----------- MAIN FUNCTION -----------
 func main() {
 	port := os.Getenv("PORT")
@@ -257,6 +370,8 @@ func main() {
 	mux.HandleFunc("/signup", signupHandler(db))
 	mux.HandleFunc("/login", loginHandler(db))
 	mux.HandleFunc("/districts", districtsHandler(db))
+	mux.HandleFunc("/farms", farmsHandler(db))
+	mux.HandleFunc("/projects", projectsHandler(db))
 
 	handlerWithCORS := enableCORS(mux)
 

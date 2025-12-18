@@ -1,23 +1,34 @@
 "use client";
 
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import React, { useState } from "react";
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
+import { useEffect, useState } from "react";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult,
+} from "@hello-pangea/dnd";
 import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react"; // Trash icon
+import { Trash2 } from "lucide-react";
 
-const initialData: Record<string, Array<{ id: string; name: string; location?: string }>> = {
-  opportunities: [
-    { id: "1", name: "Green Valley Phase 1", location: "Sector A" },
-    { id: "2", name: "Blue Heights", location: "Sector B" },
-  ],
-  inProcess: [
-    { id: "3", name: "Sunrise Villas", location: "Sector C" },
-    { id: "4", name: "Dream Gardens", location: "Sector D" },
-  ],
-  completed: [{ id: "5", name: "Mountain View Residency", location: "Sector E" }],
+/* ---------- TYPES ---------- */
+type Project = {
+  id: string;
+  name: string;
+  location: string;
+  lat: number;
+  lng: number;
+  size: number;
 };
 
+
+type ColumnsType = {
+  opportunities: Project[];
+  inProcess: Project[];
+  completed: Project[];
+};
+
+/* ---------- CONSTANTS ---------- */
 const columnColors: Record<string, string> = {
   opportunities: "bg-yellow-100 border-yellow-300 text-yellow-700",
   inProcess: "bg-blue-100 border-blue-300 text-blue-700",
@@ -30,121 +41,186 @@ const statusCircles: Record<string, string> = {
   completed: "bg-green-500",
 };
 
+const optionsList = [
+  "View Details",
+  "Edit Project",
+  "Assign Team",
+  "Mark as Favorite",
+];
+
+/* ---------- COMPONENT ---------- */
 export default function ProjectsBoardPage() {
-  const [columns, setColumns] = useState(initialData);
-  const [deleteTarget, setDeleteTarget] = useState<{ columnId: string; cardId: string } | null>(null);
   const router = useRouter();
 
+  const [columns, setColumns] = useState<ColumnsType>({
+    opportunities: [],
+    inProcess: [],
+    completed: [],
+  });
+
+  const [deleteTarget, setDeleteTarget] = useState<{
+    columnId: keyof ColumnsType;
+    cardId: string;
+  } | null>(null);
+
+  /* ---------- FETCH PROJECTS ---------- */
+  useEffect(() => {
+    fetch("http://localhost:8080/projects")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("PROJECT API DATA:", data);
+        const grouped: ColumnsType = {
+          opportunities: [],
+          inProcess: [],
+          completed: [],
+        };
+
+        data.forEach((p: any) => {
+          if (grouped[p.status]) {
+          grouped[p.status].push({
+  id: String(p.id),
+  name: p.name,
+  location: p.location,
+  lat: p.lat,
+  lng: p.lng,
+  size: p.size,
+});
+
+          }
+        });
+
+        setColumns(grouped);
+      })
+      .catch((err) => console.error("PROJECT FETCH ERROR:", err));
+  }, []);
+
+  /* ---------- DRAG ---------- */
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
     if (!destination) return;
-    if (source.droppableId === destination.droppableId && source.index === destination.index) return;
+
+    if (
+      source.droppableId === destination.droppableId &&
+      source.index === destination.index
+    )
+      return;
 
     setColumns((prev) => {
-      const newColumns = structuredClone(prev);
-      const sourceCol = newColumns[source.droppableId];
-      const destCol = newColumns[destination.droppableId];
+      const copy = structuredClone(prev);
+      const sourceCol = copy[source.droppableId as keyof ColumnsType];
+      const destCol = copy[destination.droppableId as keyof ColumnsType];
 
-      const [movedCard] = sourceCol.splice(source.index, 1);
-      destCol.splice(destination.index, 0, movedCard);
+      const [moved] = sourceCol.splice(source.index, 1);
+      destCol.splice(destination.index, 0, moved);
 
-      return newColumns;
+      return copy;
     });
   };
 
+  /* ---------- DELETE ---------- */
   const confirmDelete = () => {
     if (!deleteTarget) return;
+
     const { columnId, cardId } = deleteTarget;
 
     setColumns((prev) => {
-      const newColumns = structuredClone(prev);
-      newColumns[columnId] = newColumns[columnId].filter((c) => c.id !== cardId);
-      return newColumns;
+      const copy = structuredClone(prev);
+      copy[columnId] = copy[columnId].filter((c) => c.id !== cardId);
+      return copy;
     });
 
     setDeleteTarget(null);
   };
 
-  const optionsList = ["View Details", "Edit Project", "Assign Team", "Mark as Favorite"]; // ⭐ real options
-
+  /* ---------- UI ---------- */
   return (
-    <div className="min-h-screen bg-gray-100 p-6 relative">
+    <div className="min-h-screen bg-gray-100 p-6 text-black">
       <DashboardHeader />
-      <h1 className="text-3xl font-bold text-blue-700 mb-6">Projects Board</h1>
+      <h1 className="text-3xl font-bold text-blue-700 mb-6">
+        Projects Board
+      </h1>
 
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Object.entries(columns).map(([columnId, tasks]) => (
             <Droppable key={columnId} droppableId={columnId}>
-              {(provided, snapshot) => (
+              {(provided) => (
                 <div
-                  {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className={`rounded-lg p-4 min-h-[500px] border ${
-                    snapshot.isDraggingOver ? "bg-blue-50" : "bg-white"
-                  }`}
+                  {...provided.droppableProps}
+                  className="bg-white border rounded-lg p-4 min-h-[500px]"
                 >
                   <div className="flex items-center gap-2 mb-4">
-                    <div className={`w-3 h-3 rounded-full ${statusCircles[columnId]}`} />
-                    <h2 className={`text-lg font-semibold capitalize ${columnColors[columnId]}`}>
+                    <div
+                      className={`w-3 h-3 rounded-full ${
+                        statusCircles[columnId]
+                      }`}
+                    />
+                    <h2 className="text-lg font-semibold capitalize">
                       {columnId.replace(/([A-Z])/g, " $1")}
                     </h2>
                   </div>
 
-                  {(tasks as any[]).map((task, index) => (
-                    <Draggable key={task.id} draggableId={task.id} index={index}>
-                      {(provided) => (
-                        <div
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          ref={provided.innerRef}
-                          className="mb-3 p-4 bg-gray-50 border border-gray-200 rounded-md shadow-sm hover:shadow-md transition cursor-grab active:cursor-grabbing relative"
-                        >
-                          <div className="absolute top-2 right-2 flex gap-2">
-                            <div className="relative group">
-                              <button className="p-1 rounded hover:bg-gray-200 text-black">⋮</button>
-                              <div className="absolute right-0 mt-2 w-44 bg-black text-white border rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-50">
-                                {optionsList.map((opt, i) => (
-                                  <button
-                                    key={i}
-                                    className="block w-full px-3 py-2 text-left hover:bg-gray-800"
-                                  >
-                                    {opt}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
+                {tasks.map((task, index) => (
+  <Draggable
+    key={task.id}
+    draggableId={task.id}
+    index={index}
+  >
+    {(provided) => (
+      <div
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        className="relative mb-3 p-4 bg-white border rounded-lg shadow hover:shadow-lg transition-shadow duration-300 group"
+      >
+        {/* Delete button - visible on hover */}
+        <button
+          onClick={() =>
+            setDeleteTarget({
+              columnId: columnId as keyof ColumnsType,
+              cardId: task.id,
+            })
+          }
+          className="absolute top-2 right-2 text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+          <Trash2 size={20} />
+        </button>
 
-                            <button
-                              onClick={() => setDeleteTarget({ columnId, cardId: task.id })}
-                              className="p-1 rounded hover:bg-red-100 text-red-600"
-                              title="Delete"
-                            >
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
+        {/* Project Name */}
+      <h3 className="font-bold text-lg text-black mb-1">
+  {task.name}
+</h3>
 
-                          <h3 className="text-md font-semibold text-black mb-1">{task.name}</h3>
-                          <p className="text-sm text-gray-600 mb-3">{task.location}</p>
+<p className="text-sm text-black mb-2">
+  📍 {task.location}
+</p>
 
-                          <div className="flex justify-between mt-2">
-                            <button
-                              className="px-3 py-1 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
-                              onClick={() => router.push("/project-board")}
-                            >
-                              Open
-                            </button>
-                            <button
-                              className="px-3 py-1 text-sm font-medium text-blue-600 border border-blue-600 rounded hover:bg-blue-50"
-                              onClick={() => router.push("/map1")}
-                            >
-                              Show in Map
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+<div className="text-xs text-gray-700 space-y-1">
+  <p>📌 Lat: {task.lat}, Lng: {task.lng}</p>
+  <p>📐 Size: {task.size}</p>
+</div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-2">
+          <button
+            className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            onClick={() => router.push("/project-board")}
+          >
+            Open
+          </button>
+          <button
+            className="px-3 py-1 border rounded hover:bg-gray-100 transition"
+            onClick={() => router.push("/map1")}
+          >
+            Show in Map
+          </button>
+        </div>
+      </div>
+    )}
+  </Draggable>
+))}
+
 
                   {provided.placeholder}
                 </div>
@@ -155,22 +231,21 @@ export default function ProjectsBoardPage() {
       </DragDropContext>
 
       {deleteTarget && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-80 shadow-lg">
-            <h3 className="text-lg font-semibold mb-4 text-black">Confirm Delete</h3>
-            <p className="text-sm text-gray-700 mb-6">
-              Are you sure you want to delete this project?
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded">
+            <p className="mb-4">
+              Are you sure you want to delete?
             </p>
-            <div className="flex justify-end gap-4">
+            <div className="flex gap-3 justify-end">
               <button
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
                 onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 bg-gray-300 rounded"
               >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
                 onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded"
               >
                 Delete
               </button>
