@@ -17,6 +17,7 @@ type AreaProdOfImportantCrops struct {
 }
 
 type AreaProductionKharifVegetablesAjk struct {
+	GridID             *int32   `json:"gridId,omitempty"`
 	District           string   `json:"district"`
 	VegetableID        *int32   `json:"vegetableID,omitempty"`
 	Vegetable          *string  `json:"vegetable,omitempty"`
@@ -86,6 +87,7 @@ type AreaSownIrrigationSource struct {
 }
 
 type AreaSownProdYieldWheatPunjab struct {
+	GridID                   *int32   `json:"gridId,omitempty"`
 	ProvinceDivisionDistrict string   `json:"provinceDivisionDistrict"`
 	Year200708               *float64 `json:"year200708,omitempty"`
 	Year200809               *float64 `json:"year200809,omitempty"`
@@ -263,6 +265,7 @@ type FarmersTrainedCooperativeFarmingKpk struct {
 }
 
 type FertilizerMachineryImpactKpk struct {
+	GridID    *int32   `json:"gridId,omitempty"`
 	Year      string   `json:"year"`
 	Factors   *string  `json:"factors,omitempty"`
 	SubFactor *string  `json:"subFactor,omitempty"`
@@ -271,6 +274,7 @@ type FertilizerMachineryImpactKpk struct {
 }
 
 type FertilizerUsageProductionPunjab struct {
+	GridID                  *int32   `json:"gridId,omitempty"`
 	Year                    string   `json:"year"`
 	Province                *string  `json:"province,omitempty"`
 	Division                *string  `json:"division,omitempty"`
@@ -291,6 +295,7 @@ type FertilizerUsageProductionPunjab struct {
 }
 
 type FertilizersSaleDistrictsPunjab struct {
+	GridID           *int32 `json:"gridId,omitempty"`
 	DivisionDistrict string `json:"divisionDistrict"`
 	Year201516       *int32 `json:"year201516,omitempty"`
 	Year201617       *int32 `json:"year201617,omitempty"`
@@ -300,6 +305,7 @@ type FertilizersSaleDistrictsPunjab struct {
 }
 
 type FoodGrainsStorageCapacityPunjab struct {
+	GridID             *int32   `json:"gridId,omitempty"`
 	DivisionDistrict   string   `json:"divisionDistrict"`
 	HouseType          *float64 `json:"houseType,omitempty"`
 	SilosBinsBiniShell *float64 `json:"silosBinsBiniShell,omitempty"`
@@ -349,6 +355,7 @@ type GeometryColumns struct {
 
 type GroundTruthingSurveyAdb struct {
 	ID          string   `json:"id"`
+	GridID      *int32   `json:"gridId,omitempty"`
 	Season      *string  `json:"season,omitempty"`
 	Province    *string  `json:"province,omitempty"`
 	District    *string  `json:"district,omitempty"`
@@ -382,6 +389,7 @@ type KharifRabiIrrigatedCrop struct {
 
 type LandUtilizationStatisticsPunjab struct {
 	Year                            string  `json:"year"`
+	GridID                          *int32  `json:"gridId,omitempty"`
 	ProvinceDivisionDistrict        *string `json:"provinceDivisionDistrict,omitempty"`
 	GeographicalArea                *int32  `json:"geographicalArea,omitempty"`
 	ReportedArea                    *int32  `json:"reportedArea,omitempty"`
@@ -421,6 +429,7 @@ type MauzzasCroppedAreaPunjab struct {
 	DivisionDistrict        string `json:"divisionDistrict"`
 	NumberOfMauzas          *int32 `json:"numberOfMauzas,omitempty"`
 	CroppedArea1000Hectares *int32 `json:"croppedArea1000Hectares,omitempty"`
+	GridID                  *int32 `json:"gridId,omitempty"`
 }
 
 type Mutation struct {
@@ -439,6 +448,7 @@ type PasswordResetValidation struct {
 
 type PercentageDistributionWheatPunjab struct {
 	ProvinceDivisionDistrict string   `json:"provinceDivisionDistrict"`
+	GridID                   *int32   `json:"gridId,omitempty"`
 	Year200708               *float64 `json:"year200708,omitempty"`
 	Year200809               *float64 `json:"year200809,omitempty"`
 	Year200910               *float64 `json:"year200910,omitempty"`
@@ -456,6 +466,7 @@ type PercentageDistributionWheatPunjab struct {
 
 type PredictionCropYieldRiskPunjab struct {
 	DivisionDistrict   string `json:"divisionDistrict"`
+	GridID             *int32 `json:"gridId,omitempty"`
 	Wheat              *int32 `json:"wheat,omitempty"`
 	Gram               *int32 `json:"gram,omitempty"`
 	Barley             *int32 `json:"barley,omitempty"`
@@ -499,6 +510,7 @@ type PredictionCropYieldRiskPunjab struct {
 
 type PriceWheatCities struct {
 	CommodityItem                      string   `json:"commodityItem"`
+	GridID                             *int32   `json:"gridId,omitempty"`
 	UnitKg                             *int32   `json:"unitKg,omitempty"`
 	City                               *string  `json:"city,omitempty"`
 	Dec2020PricesRs                    *float64 `json:"dec2020PricesRs,omitempty"`
@@ -520,6 +532,7 @@ type ProcurementSupportPrices struct {
 
 type ProcurementWheatPunjabFoodDept struct {
 	DivisionDistrict string `json:"divisionDistrict"`
+	GridID           *int32 `json:"gridId,omitempty"`
 	Year201617       *int32 `json:"year201617,omitempty"`
 	Year201718       *int32 `json:"year201718,omitempty"`
 	Year201819       *int32 `json:"year201819,omitempty"`
@@ -595,6 +608,7 @@ type StockWheatPunjabGovt struct {
 
 type TemperatureRainTrends struct {
 	Month                               string   `json:"month"`
+	GridID                              *int32   `json:"gridId,omitempty"`
 	CityID                              *int32   `json:"cityID,omitempty"`
 	City                                *string  `json:"city,omitempty"`
 	HighestRecordedTemperatureInCelsius *float64 `json:"highestRecordedTemperatureInCelsius,omitempty"`
@@ -657,6 +671,7 @@ type WatercoursesImprovedDistrictTehsil struct {
 
 type WheatProcurementPunjab struct {
 	DivisionDistrict string `json:"divisionDistrict"`
+	GridID           *int32 `json:"gridId,omitempty"`
 	Year201617       *int32 `json:"year201617,omitempty"`
 	Year201718       *int32 `json:"year201718,omitempty"`
 	Year201819       *int32 `json:"year201819,omitempty"`
@@ -666,6 +681,7 @@ type WheatProcurementPunjab struct {
 
 type WheatReleaseDistrictPunjab struct {
 	DivisionDistrict string `json:"divisionDistrict"`
+	GridID           *int32 `json:"gridId,omitempty"`
 	Year201617       *int32 `json:"year201617,omitempty"`
 	Year201718       *int32 `json:"year201718,omitempty"`
 	Year201819       *int32 `json:"year201819,omitempty"`
