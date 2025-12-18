@@ -1741,27 +1741,27 @@ func (r *queryResolver) GetStockWheatPunjabGovt(ctx context.Context, month *stri
 
 // GetTemperatureRainTrends is the resolver for the getTemperatureRainTrends field.
 func (r *queryResolver) GetTemperatureRainTrends(ctx context.Context, city *string, month *string, latitude *float64, longitude *float64) ([]*model.TemperatureRainTrends, error) {
-	query := `SELECT "Month", "City_ID", "City", "Highest Recorded Temperature in Celsius ", "Highest Recorded Temperature date", "Lowest Recorded Temperature in Celsius mum Temperature in Celsi", "Lowest Recorded Temperature date", "Monthly Heaviest Rainfall in mm", "Heaviest Rainfall date" FROM temperature_rain_trends_major_cities WHERE 1=1`
+	query := `SELECT "Month", "city_id", "City", "Highest Recorded Temperature in Celsius ", "Highest Recorded Temperature date", "Lowest Recorded Temperature in Celsius mum Temperature in Celsi", "Lowest Recorded Temperature date", "Monthly Heaviest Rainfall in mm", "Heaviest Rainfall date" FROM temperature_rain_trends_major_cities WHERE 1=1`
 	var args []interface{}
 	argCounter := 1
 	var gridID *int32
 
-	// If coordinates provided, find city_id and grid_id
+	// If coordinates provided, find district_id and grid_id
 	if latitude != nil && longitude != nil {
-		var cityID int
+		var districtID int
 		var tempGridID int32
 		err := r.DB.QueryRowContext(ctx,
-			`SELECT city_id, grid_id FROM grid_1km 
+			`SELECT district_id, grid_id FROM grid_1km 
 			 WHERE ST_Contains(cell_geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
-			*longitude, *latitude).Scan(&cityID, &tempGridID)
+			*longitude, *latitude).Scan(&districtID, &tempGridID)
 
 		if err != nil {
-			return nil, fmt.Errorf("coordinates not found in any city")
+			return nil, fmt.Errorf("coordinates not found in any grid cell")
 		}
 
 		gridID = &tempGridID
 		query += ` AND city_id = $` + strconv.Itoa(argCounter)
-		args = append(args, cityID)
+		args = append(args, districtID)
 		argCounter++
 	} else if city != nil {
 		query += ` AND "City" = $` + strconv.Itoa(argCounter)
