@@ -173,6 +173,15 @@ type Query {
     
     # Verify token is valid, not expired, not used, Returns: validation status, message, and user ID if valid
     validatePasswordResetToken(token: String!): PasswordResetValidation!
+
+    # Admin Farm List Type
+    getAdminFarmList(id: Int, groupName: String, owner: String): [AdminFarmList!]!
+
+    # Data Layers Management Type
+    getDataLayersManagement(id: Int, name: String, type: String, status: String): [DataLayersManagement!]!
+
+    # Admin Projects Type
+    getAdminProjects(id: Int, city: String, district: String, province: String, latitude: Float, longitude: Float): [AdminProjects!]!
 }
 
 # ----------------------------------------------------
@@ -922,6 +931,39 @@ type ForgetPassword {
     expire_at: String!             # Token expiration timestamp
     used: Boolean!                 # Flag: true if token already used
     created: String!               # Record creation timestamp
+}
+
+# 55. Admin Farm List Type
+type AdminFarmList {
+    id: Int!
+    groupName: String
+    address: String
+    numberOfFarms: Int
+    numberOfWorkers: Int
+    owner: String
+    actions: String
+}
+
+# 56. Data Layers Management Type
+type DataLayersManagement {
+    id: Int!
+    name: String
+    type: String
+    source: Int
+    status: String
+    actions: String
+}
+
+# 57. Admin Projects Type
+type AdminProjects {
+    id: Int!
+    city: String
+    district: String
+    province: String
+    address: String
+    sizeSqm: Float
+    latitude: Float
+    longitude: Float
 }
 
 # PasswordResetResponse returned after requesting or resetting password

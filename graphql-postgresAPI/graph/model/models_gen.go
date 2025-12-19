@@ -2,6 +2,27 @@
 
 package model
 
+type AdminFarmList struct {
+	ID              int32   `json:"id"`
+	GroupName       *string `json:"groupName,omitempty"`
+	Address         *string `json:"address,omitempty"`
+	NumberOfFarms   *int32  `json:"numberOfFarms,omitempty"`
+	NumberOfWorkers *int32  `json:"numberOfWorkers,omitempty"`
+	Owner           *string `json:"owner,omitempty"`
+	Actions         *string `json:"actions,omitempty"`
+}
+
+type AdminProjects struct {
+	ID        int32    `json:"id"`
+	City      *string  `json:"city,omitempty"`
+	District  *string  `json:"district,omitempty"`
+	Province  *string  `json:"province,omitempty"`
+	Address   *string  `json:"address,omitempty"`
+	SizeSqm   *float64 `json:"sizeSqm,omitempty"`
+	Latitude  *float64 `json:"latitude,omitempty"`
+	Longitude *float64 `json:"longitude,omitempty"`
+}
+
 type AreaProdOfImportantCrops struct {
 	Year                string   `json:"year"`
 	AreaWheat           *float64 `json:"areaWheat,omitempty"`
@@ -214,6 +235,15 @@ type DashboardData struct {
 type DashboardPage struct {
 	Name             string   `json:"name"`
 	AccessibleTables []string `json:"accessibleTables"`
+}
+
+type DataLayersManagement struct {
+	ID      int32   `json:"id"`
+	Name    *string `json:"name,omitempty"`
+	Type    *string `json:"type,omitempty"`
+	Source  *int32  `json:"source,omitempty"`
+	Status  *string `json:"status,omitempty"`
+	Actions *string `json:"actions,omitempty"`
 }
 
 type DistributionImprovedSeedsPunjab struct {
