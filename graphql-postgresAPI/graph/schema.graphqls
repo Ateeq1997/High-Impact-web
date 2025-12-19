@@ -81,6 +81,9 @@ type Query {
     # 26. Ground Truthing Survey ADB
     getGroundTruthingSurveyADB(province: String, district: String, season: String, latitude: Float, longitude: Float): [GroundTruthingSurveyADB!]!
     
+    # 26. For map display - returns all points with geometry
+    getGroundTruthingSurveyMap(province: String, district: String, season: String): [GroundTruthingSurveyADB!]!
+
     # 27. Kharif Rabi Irrigated Crop Total Irrigated Area
     getKharifRabiIrrigatedCrop(crop: String): [KharifRabiIrrigatedCrop!]!
     
@@ -174,13 +177,13 @@ type Query {
     # Verify token is valid, not expired, not used, Returns: validation status, message, and user ID if valid
     validatePasswordResetToken(token: String!): PasswordResetValidation!
 
-    # Admin Farm List Type
+    # 55. Admin Farm List Type
     getAdminFarmList(id: Int, groupName: String, owner: String): [AdminFarmList!]!
 
-    # Data Layers Management Type
+    # 56. Data Layers Management Type
     getDataLayersManagement(id: Int, name: String, type: String, status: String): [DataLayersManagement!]!
 
-    # Admin Projects Type
+    # 57. Admin Projects Type
     getAdminProjects(id: Int, city: String, district: String, province: String, latitude: Float, longitude: Float): [AdminProjects!]!
 }
 
@@ -548,6 +551,7 @@ type GroundTruthingSurveyADB {
     land: String
     description: String
     stage: String
+    geom: String  # Add this - GeoJSON geometry
 }
 
 # 27. Kharif Rabi Irrigated Crop Total Irrigated Area 2018-21
@@ -949,7 +953,7 @@ type DataLayersManagement {
     id: Int!
     name: String
     type: String
-    source: Int
+    source: String
     status: String
     actions: String
 }

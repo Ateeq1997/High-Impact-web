@@ -241,7 +241,7 @@ type DataLayersManagement struct {
 	ID      int32   `json:"id"`
 	Name    *string `json:"name,omitempty"`
 	Type    *string `json:"type,omitempty"`
-	Source  *int32  `json:"source,omitempty"`
+	Source  *string `json:"source,omitempty"`
 	Status  *string `json:"status,omitempty"`
 	Actions *string `json:"actions,omitempty"`
 }
@@ -396,6 +396,7 @@ type GroundTruthingSurveyAdb struct {
 	Land        *string  `json:"land,omitempty"`
 	Description *string  `json:"description,omitempty"`
 	Stage       *string  `json:"stage,omitempty"`
+	Geom        *string  `json:"geom,omitempty"`
 }
 
 type GroupListData struct {

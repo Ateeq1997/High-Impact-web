@@ -1182,6 +1182,48 @@ func (r *queryResolver) GetGroundTruthingSurveyAdb(ctx context.Context, province
 	return results, nil
 }
 
+// GetGroundTruthingSurveyMap is the resolver for the getGroundTruthingSurveyMap field.
+func (r *queryResolver) GetGroundTruthingSurveyMap(ctx context.Context, province *string, district *string, season *string) ([]*model.GroundTruthingSurveyAdb, error) {
+	query := `SELECT "ID", "Season", "Province", "District", "Date", "Latitude", "Longitude", "Code", "Land", "Description", "Stage", ST_AsGeoJSON(geom) as geom FROM "ground_truthing_survey_ADB" WHERE 1=1`
+	var args []interface{}
+	argCounter := 1
+
+	if province != nil {
+		query += ` AND "Province" = $` + strconv.Itoa(argCounter)
+		args = append(args, *province)
+		argCounter++
+	}
+	if district != nil {
+		query += ` AND "District" = $` + strconv.Itoa(argCounter)
+		args = append(args, *district)
+		argCounter++
+	}
+	if season != nil {
+		query += ` AND "Season" = $` + strconv.Itoa(argCounter)
+		args = append(args, *season)
+		argCounter++
+	}
+
+	rows, err := r.DB.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []*model.GroundTruthingSurveyAdb
+	for rows.Next() {
+		var item model.GroundTruthingSurveyAdb
+		var geomJSON *string
+		err := rows.Scan(&item.ID, &item.Season, &item.Province, &item.District, &item.Date, &item.Latitude, &item.Longitude, &item.Code, &item.Land, &item.Description, &item.Stage, &geomJSON)
+		if err != nil {
+			return nil, err
+		}
+		item.Geom = geomJSON // GeoJSON string for frontend mapping
+		results = append(results, &item)
+	}
+	return results, nil
+}
+
 // GetKharifRabiIrrigatedCrop is the resolver for the getKharifRabiIrrigatedCrop field.
 func (r *queryResolver) GetKharifRabiIrrigatedCrop(ctx context.Context, crop *string) ([]*model.KharifRabiIrrigatedCrop, error) {
 	query := `SELECT "Crop", "Total in 2018-19", "Irrigated in 2018-19", "Total in 2019-20", "Irrigated in 2019-20", "Total in 2020-21", "Irrigated 2020-21" FROM kharif_rabi_irrigated_crop_total_irrigated_area_2018_21`
@@ -1927,8 +1969,8 @@ func (r *queryResolver) GetDashboard(ctx context.Context, token string) (*model.
 			{Name: "Farm List", AccessibleTables: []string{"farm_list"}},
 			{Name: "Group List", AccessibleTables: []string{"group_list"}},
 			{Name: "Projects", AccessibleTables: []string{"user_project"}},
-			{Name: "Map", AccessibleTables: []string{"farms", "field_boundaries"}},     // Will come from map API
-			{Name: "Data Layers", AccessibleTables: []string{"farms", "user_project"}}, // Geo data,
+			{Name: "Map", AccessibleTables: []string{"farms", "field_boundaries"}},      // Will come from map API
+			{Name: "Data Layers", AccessibleTables: []string{"data_layers_management"}}, // Geo data,
 			{Name: "System", AccessibleTables: []string{"user_account_data", "farm_list", "group_list"}},
 		}
 
