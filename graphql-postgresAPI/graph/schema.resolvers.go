@@ -2369,6 +2369,72 @@ func (r *queryResolver) ValidatePasswordResetToken(ctx context.Context, token st
 	}, nil
 }
 
+// GetAdminFarmList is the resolver for the getAdminFarmList field.
+func (r *queryResolver) GetAdminFarmList(ctx context.Context, id *int32, groupName *string, owner *string) ([]*model.AdminFarmList, error) {
+	query := `SELECT id, group_name, address, number_of_farms, number_of_workers, owner, actions FROM admin_farm_list`
+
+	rows, err := r.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []*model.AdminFarmList
+	for rows.Next() {
+		var item model.AdminFarmList
+		err := rows.Scan(&item.ID, &item.GroupName, &item.Address, &item.NumberOfFarms, &item.NumberOfWorkers, &item.Owner, &item.Actions)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &item)
+	}
+	return results, nil
+}
+
+// GetDataLayersManagement is the resolver for the getDataLayersManagement field.
+func (r *queryResolver) GetDataLayersManagement(ctx context.Context, id *int32, name *string, typeArg *string, status *string) ([]*model.DataLayersManagement, error) {
+	query := `SELECT id, name, type, source, status, actions FROM data_layers_management`
+
+	rows, err := r.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []*model.DataLayersManagement
+	for rows.Next() {
+		var item model.DataLayersManagement
+		err := rows.Scan(&item.ID, &item.Name, &item.Type, &item.Source, &item.Status, &item.Actions)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &item)
+	}
+	return results, nil
+}
+
+// GetAdminProjects is the resolver for the getAdminProjects field.
+func (r *queryResolver) GetAdminProjects(ctx context.Context, id *int32, city *string, district *string, province *string, latitude *float64, longitude *float64) ([]*model.AdminProjects, error) {
+	query := `SELECT id, city, district, province, address, size_sqm, latitude, longitude FROM admin_projects`
+
+	rows, err := r.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []*model.AdminProjects
+	for rows.Next() {
+		var item model.AdminProjects
+		err := rows.Scan(&item.ID, &item.City, &item.District, &item.Province, &item.Address, &item.SizeSqm, &item.Latitude, &item.Longitude)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, &item)
+	}
+	return results, nil
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
