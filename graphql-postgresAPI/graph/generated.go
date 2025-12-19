@@ -47,6 +47,27 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AdminFarmList struct {
+		Actions         func(childComplexity int) int
+		Address         func(childComplexity int) int
+		GroupName       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		NumberOfFarms   func(childComplexity int) int
+		NumberOfWorkers func(childComplexity int) int
+		Owner           func(childComplexity int) int
+	}
+
+	AdminProjects struct {
+		Address   func(childComplexity int) int
+		City      func(childComplexity int) int
+		District  func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Latitude  func(childComplexity int) int
+		Longitude func(childComplexity int) int
+		Province  func(childComplexity int) int
+		SizeSqm   func(childComplexity int) int
+	}
+
 	AreaProdOfImportantCrops struct {
 		AreaCotton          func(childComplexity int) int
 		AreaMaize           func(childComplexity int) int
@@ -261,6 +282,15 @@ type ComplexityRoot struct {
 		Name             func(childComplexity int) int
 	}
 
+	DataLayersManagement struct {
+		Actions func(childComplexity int) int
+		ID      func(childComplexity int) int
+		Name    func(childComplexity int) int
+		Source  func(childComplexity int) int
+		Status  func(childComplexity int) int
+		Type    func(childComplexity int) int
+	}
+
 	DistributionImprovedSeedsPunjab struct {
 		Cotton      func(childComplexity int) int
 		Gram        func(childComplexity int) int
@@ -403,6 +433,7 @@ type ComplexityRoot struct {
 		Date        func(childComplexity int) int
 		Description func(childComplexity int) int
 		District    func(childComplexity int) int
+		Geom        func(childComplexity int) int
 		GridID      func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Land        func(childComplexity int) int
@@ -607,6 +638,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		GetAdminFarmList                            func(childComplexity int, id *int32, groupName *string, owner *string) int
+		GetAdminProjects                            func(childComplexity int, id *int32, city *string, district *string, province *string, latitude *float64, longitude *float64) int
 		GetAreaProdOfImportantCrops                 func(childComplexity int, year *string) int
 		GetAreaProductionKharifVegetablesAjk        func(childComplexity int, district *string, vegetable *string, latitude *float64, longitude *float64) int
 		GetAreaProductionPercentageSharePunjabCrops func(childComplexity int, crop *string, year *string) int
@@ -624,6 +657,7 @@ type ComplexityRoot struct {
 		GetCottonProductionPakistan                 func(childComplexity int, year *string) int
 		GetCropAreaPunjab                           func(childComplexity int, crop *string) int
 		GetDashboard                                func(childComplexity int, token string) int
+		GetDataLayersManagement                     func(childComplexity int, id *int32, name *string, typeArg *string, status *string) int
 		GetDistributionImprovedSeedsPunjab          func(childComplexity int, year *string) int
 		GetFarmListData                             func(childComplexity int, groupName *string) int
 		GetFarmersTrainedCooperativeFarmingKpk      func(childComplexity int, month *string) int
@@ -636,6 +670,7 @@ type ComplexityRoot struct {
 		GetGeographyColumns                         func(childComplexity int) int
 		GetGeometryColumns                          func(childComplexity int) int
 		GetGroundTruthingSurveyAdb                  func(childComplexity int, province *string, district *string, season *string, latitude *float64, longitude *float64) int
+		GetGroundTruthingSurveyMap                  func(childComplexity int, province *string, district *string, season *string) int
 		GetGroupListData                            func(childComplexity int, username *string, email *string, status *bool) int
 		GetKharifRabiIrrigatedCrop                  func(childComplexity int, crop *string) int
 		GetLandUtilizationStatisticsPunjab          func(childComplexity int, year *string, district *string, latitude *float64, longitude *float64) int
@@ -850,6 +885,7 @@ type QueryResolver interface {
 	GetGeographyColumns(ctx context.Context) ([]*model.GeographyColumns, error)
 	GetGeometryColumns(ctx context.Context) ([]*model.GeometryColumns, error)
 	GetGroundTruthingSurveyAdb(ctx context.Context, province *string, district *string, season *string, latitude *float64, longitude *float64) ([]*model.GroundTruthingSurveyAdb, error)
+	GetGroundTruthingSurveyMap(ctx context.Context, province *string, district *string, season *string) ([]*model.GroundTruthingSurveyAdb, error)
 	GetKharifRabiIrrigatedCrop(ctx context.Context, crop *string) ([]*model.KharifRabiIrrigatedCrop, error)
 	GetLandUtilizationStatisticsPunjab(ctx context.Context, year *string, district *string, latitude *float64, longitude *float64) ([]*model.LandUtilizationStatisticsPunjab, error)
 	GetLoansDisbursedZaraiTaraqiatBank(ctx context.Context, purpose *string) ([]*model.LoansDisbursedZaraiTaraqiatBank, error)
@@ -881,6 +917,9 @@ type QueryResolver interface {
 	GetGroupListData(ctx context.Context, username *string, email *string, status *bool) ([]*model.GroupListData, error)
 	GetForgetPassword(ctx context.Context, userID *int32, token *string) ([]*model.ForgetPassword, error)
 	ValidatePasswordResetToken(ctx context.Context, token string) (*model.PasswordResetValidation, error)
+	GetAdminFarmList(ctx context.Context, id *int32, groupName *string, owner *string) ([]*model.AdminFarmList, error)
+	GetDataLayersManagement(ctx context.Context, id *int32, name *string, typeArg *string, status *string) ([]*model.DataLayersManagement, error)
+	GetAdminProjects(ctx context.Context, id *int32, city *string, district *string, province *string, latitude *float64, longitude *float64) ([]*model.AdminProjects, error)
 }
 
 type executableSchema struct {
@@ -901,6 +940,98 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AdminFarmList.actions":
+		if e.complexity.AdminFarmList.Actions == nil {
+			break
+		}
+
+		return e.complexity.AdminFarmList.Actions(childComplexity), true
+	case "AdminFarmList.address":
+		if e.complexity.AdminFarmList.Address == nil {
+			break
+		}
+
+		return e.complexity.AdminFarmList.Address(childComplexity), true
+	case "AdminFarmList.groupName":
+		if e.complexity.AdminFarmList.GroupName == nil {
+			break
+		}
+
+		return e.complexity.AdminFarmList.GroupName(childComplexity), true
+	case "AdminFarmList.id":
+		if e.complexity.AdminFarmList.ID == nil {
+			break
+		}
+
+		return e.complexity.AdminFarmList.ID(childComplexity), true
+	case "AdminFarmList.numberOfFarms":
+		if e.complexity.AdminFarmList.NumberOfFarms == nil {
+			break
+		}
+
+		return e.complexity.AdminFarmList.NumberOfFarms(childComplexity), true
+	case "AdminFarmList.numberOfWorkers":
+		if e.complexity.AdminFarmList.NumberOfWorkers == nil {
+			break
+		}
+
+		return e.complexity.AdminFarmList.NumberOfWorkers(childComplexity), true
+	case "AdminFarmList.owner":
+		if e.complexity.AdminFarmList.Owner == nil {
+			break
+		}
+
+		return e.complexity.AdminFarmList.Owner(childComplexity), true
+
+	case "AdminProjects.address":
+		if e.complexity.AdminProjects.Address == nil {
+			break
+		}
+
+		return e.complexity.AdminProjects.Address(childComplexity), true
+	case "AdminProjects.city":
+		if e.complexity.AdminProjects.City == nil {
+			break
+		}
+
+		return e.complexity.AdminProjects.City(childComplexity), true
+	case "AdminProjects.district":
+		if e.complexity.AdminProjects.District == nil {
+			break
+		}
+
+		return e.complexity.AdminProjects.District(childComplexity), true
+	case "AdminProjects.id":
+		if e.complexity.AdminProjects.ID == nil {
+			break
+		}
+
+		return e.complexity.AdminProjects.ID(childComplexity), true
+	case "AdminProjects.latitude":
+		if e.complexity.AdminProjects.Latitude == nil {
+			break
+		}
+
+		return e.complexity.AdminProjects.Latitude(childComplexity), true
+	case "AdminProjects.longitude":
+		if e.complexity.AdminProjects.Longitude == nil {
+			break
+		}
+
+		return e.complexity.AdminProjects.Longitude(childComplexity), true
+	case "AdminProjects.province":
+		if e.complexity.AdminProjects.Province == nil {
+			break
+		}
+
+		return e.complexity.AdminProjects.Province(childComplexity), true
+	case "AdminProjects.sizeSqm":
+		if e.complexity.AdminProjects.SizeSqm == nil {
+			break
+		}
+
+		return e.complexity.AdminProjects.SizeSqm(childComplexity), true
 
 	case "AreaProdOfImportantCrops.areaCotton":
 		if e.complexity.AreaProdOfImportantCrops.AreaCotton == nil {
@@ -1880,6 +2011,43 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.DashboardPage.Name(childComplexity), true
 
+	case "DataLayersManagement.actions":
+		if e.complexity.DataLayersManagement.Actions == nil {
+			break
+		}
+
+		return e.complexity.DataLayersManagement.Actions(childComplexity), true
+	case "DataLayersManagement.id":
+		if e.complexity.DataLayersManagement.ID == nil {
+			break
+		}
+
+		return e.complexity.DataLayersManagement.ID(childComplexity), true
+	case "DataLayersManagement.name":
+		if e.complexity.DataLayersManagement.Name == nil {
+			break
+		}
+
+		return e.complexity.DataLayersManagement.Name(childComplexity), true
+	case "DataLayersManagement.source":
+		if e.complexity.DataLayersManagement.Source == nil {
+			break
+		}
+
+		return e.complexity.DataLayersManagement.Source(childComplexity), true
+	case "DataLayersManagement.status":
+		if e.complexity.DataLayersManagement.Status == nil {
+			break
+		}
+
+		return e.complexity.DataLayersManagement.Status(childComplexity), true
+	case "DataLayersManagement.type":
+		if e.complexity.DataLayersManagement.Type == nil {
+			break
+		}
+
+		return e.complexity.DataLayersManagement.Type(childComplexity), true
+
 	case "DistributionImprovedSeedsPunjab.cotton":
 		if e.complexity.DistributionImprovedSeedsPunjab.Cotton == nil {
 			break
@@ -2539,6 +2707,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.GroundTruthingSurveyADB.District(childComplexity), true
+	case "GroundTruthingSurveyADB.geom":
+		if e.complexity.GroundTruthingSurveyADB.Geom == nil {
+			break
+		}
+
+		return e.complexity.GroundTruthingSurveyADB.Geom(childComplexity), true
 	case "GroundTruthingSurveyADB.gridId":
 		if e.complexity.GroundTruthingSurveyADB.GridID == nil {
 			break
@@ -3499,6 +3673,28 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.QuantumAcerageIndexImportantCrops.Year202021(childComplexity), true
 
+	case "Query.getAdminFarmList":
+		if e.complexity.Query.GetAdminFarmList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAdminFarmList_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAdminFarmList(childComplexity, args["id"].(*int32), args["groupName"].(*string), args["owner"].(*string)), true
+	case "Query.getAdminProjects":
+		if e.complexity.Query.GetAdminProjects == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAdminProjects_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAdminProjects(childComplexity, args["id"].(*int32), args["city"].(*string), args["district"].(*string), args["province"].(*string), args["latitude"].(*float64), args["longitude"].(*float64)), true
 	case "Query.getAreaProdOfImportantCrops":
 		if e.complexity.Query.GetAreaProdOfImportantCrops == nil {
 			break
@@ -3686,6 +3882,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.GetDashboard(childComplexity, args["token"].(string)), true
+	case "Query.getDataLayersManagement":
+		if e.complexity.Query.GetDataLayersManagement == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getDataLayersManagement_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetDataLayersManagement(childComplexity, args["id"].(*int32), args["name"].(*string), args["type"].(*string), args["status"].(*string)), true
 	case "Query.getDistributionImprovedSeedsPunjab":
 		if e.complexity.Query.GetDistributionImprovedSeedsPunjab == nil {
 			break
@@ -3808,6 +4015,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.GetGroundTruthingSurveyAdb(childComplexity, args["province"].(*string), args["district"].(*string), args["season"].(*string), args["latitude"].(*float64), args["longitude"].(*float64)), true
+	case "Query.getGroundTruthingSurveyMap":
+		if e.complexity.Query.GetGroundTruthingSurveyMap == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getGroundTruthingSurveyMap_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetGroundTruthingSurveyMap(childComplexity, args["province"].(*string), args["district"].(*string), args["season"].(*string)), true
 	case "Query.getGroupListData":
 		if e.complexity.Query.GetGroupListData == nil {
 			break
@@ -4965,6 +5183,63 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getAdminFarmList_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalOInt2ᚖint32)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "groupName", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["groupName"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "owner", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["owner"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAdminProjects_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalOInt2ᚖint32)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "city", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["city"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "district", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["district"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "province", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["province"] = arg3
+	arg4, err := graphql.ProcessArgField(ctx, rawArgs, "latitude", ec.unmarshalOFloat2ᚖfloat64)
+	if err != nil {
+		return nil, err
+	}
+	args["latitude"] = arg4
+	arg5, err := graphql.ProcessArgField(ctx, rawArgs, "longitude", ec.unmarshalOFloat2ᚖfloat64)
+	if err != nil {
+		return nil, err
+	}
+	args["longitude"] = arg5
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getAreaProdOfImportantCrops_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -5192,6 +5467,32 @@ func (ec *executionContext) field_Query_getDashboard_args(ctx context.Context, r
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getDataLayersManagement_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalOInt2ᚖint32)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "name", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["name"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "type", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["type"] = arg2
+	arg3, err := graphql.ProcessArgField(ctx, rawArgs, "status", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["status"] = arg3
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getDistributionImprovedSeedsPunjab_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -5374,6 +5675,27 @@ func (ec *executionContext) field_Query_getGroundTruthingSurveyADB_args(ctx cont
 		return nil, err
 	}
 	args["longitude"] = arg4
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getGroundTruthingSurveyMap_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "province", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["province"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "district", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["district"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "season", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["season"] = arg2
 	return args, nil
 }
 
@@ -5886,6 +6208,441 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AdminFarmList_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminFarmList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminFarmList_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminFarmList_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminFarmList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminFarmList_groupName(ctx context.Context, field graphql.CollectedField, obj *model.AdminFarmList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminFarmList_groupName,
+		func(ctx context.Context) (any, error) {
+			return obj.GroupName, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminFarmList_groupName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminFarmList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminFarmList_address(ctx context.Context, field graphql.CollectedField, obj *model.AdminFarmList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminFarmList_address,
+		func(ctx context.Context) (any, error) {
+			return obj.Address, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminFarmList_address(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminFarmList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminFarmList_numberOfFarms(ctx context.Context, field graphql.CollectedField, obj *model.AdminFarmList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminFarmList_numberOfFarms,
+		func(ctx context.Context) (any, error) {
+			return obj.NumberOfFarms, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint32,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminFarmList_numberOfFarms(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminFarmList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminFarmList_numberOfWorkers(ctx context.Context, field graphql.CollectedField, obj *model.AdminFarmList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminFarmList_numberOfWorkers,
+		func(ctx context.Context) (any, error) {
+			return obj.NumberOfWorkers, nil
+		},
+		nil,
+		ec.marshalOInt2ᚖint32,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminFarmList_numberOfWorkers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminFarmList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminFarmList_owner(ctx context.Context, field graphql.CollectedField, obj *model.AdminFarmList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminFarmList_owner,
+		func(ctx context.Context) (any, error) {
+			return obj.Owner, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminFarmList_owner(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminFarmList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminFarmList_actions(ctx context.Context, field graphql.CollectedField, obj *model.AdminFarmList) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminFarmList_actions,
+		func(ctx context.Context) (any, error) {
+			return obj.Actions, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminFarmList_actions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminFarmList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminProjects_id(ctx context.Context, field graphql.CollectedField, obj *model.AdminProjects) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminProjects_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminProjects_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminProjects",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminProjects_city(ctx context.Context, field graphql.CollectedField, obj *model.AdminProjects) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminProjects_city,
+		func(ctx context.Context) (any, error) {
+			return obj.City, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminProjects_city(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminProjects",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminProjects_district(ctx context.Context, field graphql.CollectedField, obj *model.AdminProjects) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminProjects_district,
+		func(ctx context.Context) (any, error) {
+			return obj.District, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminProjects_district(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminProjects",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminProjects_province(ctx context.Context, field graphql.CollectedField, obj *model.AdminProjects) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminProjects_province,
+		func(ctx context.Context) (any, error) {
+			return obj.Province, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminProjects_province(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminProjects",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminProjects_address(ctx context.Context, field graphql.CollectedField, obj *model.AdminProjects) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminProjects_address,
+		func(ctx context.Context) (any, error) {
+			return obj.Address, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminProjects_address(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminProjects",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminProjects_sizeSqm(ctx context.Context, field graphql.CollectedField, obj *model.AdminProjects) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminProjects_sizeSqm,
+		func(ctx context.Context) (any, error) {
+			return obj.SizeSqm, nil
+		},
+		nil,
+		ec.marshalOFloat2ᚖfloat64,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminProjects_sizeSqm(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminProjects",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminProjects_latitude(ctx context.Context, field graphql.CollectedField, obj *model.AdminProjects) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminProjects_latitude,
+		func(ctx context.Context) (any, error) {
+			return obj.Latitude, nil
+		},
+		nil,
+		ec.marshalOFloat2ᚖfloat64,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminProjects_latitude(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminProjects",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminProjects_longitude(ctx context.Context, field graphql.CollectedField, obj *model.AdminProjects) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_AdminProjects_longitude,
+		func(ctx context.Context) (any, error) {
+			return obj.Longitude, nil
+		},
+		nil,
+		ec.marshalOFloat2ᚖfloat64,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_AdminProjects_longitude(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminProjects",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _AreaProdOfImportantCrops_year(ctx context.Context, field graphql.CollectedField, obj *model.AreaProdOfImportantCrops) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
@@ -10533,6 +11290,180 @@ func (ec *executionContext) fieldContext_DashboardPage_accessibleTables(_ contex
 	return fc, nil
 }
 
+func (ec *executionContext) _DataLayersManagement_id(ctx context.Context, field graphql.CollectedField, obj *model.DataLayersManagement) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DataLayersManagement_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNInt2int32,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_DataLayersManagement_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DataLayersManagement",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DataLayersManagement_name(ctx context.Context, field graphql.CollectedField, obj *model.DataLayersManagement) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DataLayersManagement_name,
+		func(ctx context.Context) (any, error) {
+			return obj.Name, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_DataLayersManagement_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DataLayersManagement",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DataLayersManagement_type(ctx context.Context, field graphql.CollectedField, obj *model.DataLayersManagement) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DataLayersManagement_type,
+		func(ctx context.Context) (any, error) {
+			return obj.Type, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_DataLayersManagement_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DataLayersManagement",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DataLayersManagement_source(ctx context.Context, field graphql.CollectedField, obj *model.DataLayersManagement) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DataLayersManagement_source,
+		func(ctx context.Context) (any, error) {
+			return obj.Source, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_DataLayersManagement_source(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DataLayersManagement",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DataLayersManagement_status(ctx context.Context, field graphql.CollectedField, obj *model.DataLayersManagement) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DataLayersManagement_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_DataLayersManagement_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DataLayersManagement",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DataLayersManagement_actions(ctx context.Context, field graphql.CollectedField, obj *model.DataLayersManagement) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DataLayersManagement_actions,
+		func(ctx context.Context) (any, error) {
+			return obj.Actions, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_DataLayersManagement_actions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DataLayersManagement",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _DistributionImprovedSeedsPunjab_year(ctx context.Context, field graphql.CollectedField, obj *model.DistributionImprovedSeedsPunjab) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -13885,6 +14816,35 @@ func (ec *executionContext) _GroundTruthingSurveyADB_stage(ctx context.Context, 
 }
 
 func (ec *executionContext) fieldContext_GroundTruthingSurveyADB_stage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroundTruthingSurveyADB",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroundTruthingSurveyADB_geom(ctx context.Context, field graphql.CollectedField, obj *model.GroundTruthingSurveyAdb) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_GroundTruthingSurveyADB_geom,
+		func(ctx context.Context) (any, error) {
+			return obj.Geom, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_GroundTruthingSurveyADB_geom(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GroundTruthingSurveyADB",
 		Field:      field,
@@ -19804,6 +20764,8 @@ func (ec *executionContext) fieldContext_Query_getGroundTruthingSurveyADB(ctx co
 				return ec.fieldContext_GroundTruthingSurveyADB_description(ctx, field)
 			case "stage":
 				return ec.fieldContext_GroundTruthingSurveyADB_stage(ctx, field)
+			case "geom":
+				return ec.fieldContext_GroundTruthingSurveyADB_geom(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GroundTruthingSurveyADB", field.Name)
 		},
@@ -19816,6 +20778,75 @@ func (ec *executionContext) fieldContext_Query_getGroundTruthingSurveyADB(ctx co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getGroundTruthingSurveyADB_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getGroundTruthingSurveyMap(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_getGroundTruthingSurveyMap,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().GetGroundTruthingSurveyMap(ctx, fc.Args["province"].(*string), fc.Args["district"].(*string), fc.Args["season"].(*string))
+		},
+		nil,
+		ec.marshalNGroundTruthingSurveyADB2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐGroundTruthingSurveyAdbᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_getGroundTruthingSurveyMap(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroundTruthingSurveyADB_id(ctx, field)
+			case "gridId":
+				return ec.fieldContext_GroundTruthingSurveyADB_gridId(ctx, field)
+			case "season":
+				return ec.fieldContext_GroundTruthingSurveyADB_season(ctx, field)
+			case "province":
+				return ec.fieldContext_GroundTruthingSurveyADB_province(ctx, field)
+			case "district":
+				return ec.fieldContext_GroundTruthingSurveyADB_district(ctx, field)
+			case "date":
+				return ec.fieldContext_GroundTruthingSurveyADB_date(ctx, field)
+			case "latitude":
+				return ec.fieldContext_GroundTruthingSurveyADB_latitude(ctx, field)
+			case "longitude":
+				return ec.fieldContext_GroundTruthingSurveyADB_longitude(ctx, field)
+			case "code":
+				return ec.fieldContext_GroundTruthingSurveyADB_code(ctx, field)
+			case "land":
+				return ec.fieldContext_GroundTruthingSurveyADB_land(ctx, field)
+			case "description":
+				return ec.fieldContext_GroundTruthingSurveyADB_description(ctx, field)
+			case "stage":
+				return ec.fieldContext_GroundTruthingSurveyADB_stage(ctx, field)
+			case "geom":
+				return ec.fieldContext_GroundTruthingSurveyADB_geom(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroundTruthingSurveyADB", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getGroundTruthingSurveyMap_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -21667,6 +22698,177 @@ func (ec *executionContext) fieldContext_Query_validatePasswordResetToken(ctx co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_validatePasswordResetToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAdminFarmList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_getAdminFarmList,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().GetAdminFarmList(ctx, fc.Args["id"].(*int32), fc.Args["groupName"].(*string), fc.Args["owner"].(*string))
+		},
+		nil,
+		ec.marshalNAdminFarmList2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAdminFarmListᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_getAdminFarmList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminFarmList_id(ctx, field)
+			case "groupName":
+				return ec.fieldContext_AdminFarmList_groupName(ctx, field)
+			case "address":
+				return ec.fieldContext_AdminFarmList_address(ctx, field)
+			case "numberOfFarms":
+				return ec.fieldContext_AdminFarmList_numberOfFarms(ctx, field)
+			case "numberOfWorkers":
+				return ec.fieldContext_AdminFarmList_numberOfWorkers(ctx, field)
+			case "owner":
+				return ec.fieldContext_AdminFarmList_owner(ctx, field)
+			case "actions":
+				return ec.fieldContext_AdminFarmList_actions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminFarmList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAdminFarmList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getDataLayersManagement(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_getDataLayersManagement,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().GetDataLayersManagement(ctx, fc.Args["id"].(*int32), fc.Args["name"].(*string), fc.Args["type"].(*string), fc.Args["status"].(*string))
+		},
+		nil,
+		ec.marshalNDataLayersManagement2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐDataLayersManagementᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_getDataLayersManagement(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_DataLayersManagement_id(ctx, field)
+			case "name":
+				return ec.fieldContext_DataLayersManagement_name(ctx, field)
+			case "type":
+				return ec.fieldContext_DataLayersManagement_type(ctx, field)
+			case "source":
+				return ec.fieldContext_DataLayersManagement_source(ctx, field)
+			case "status":
+				return ec.fieldContext_DataLayersManagement_status(ctx, field)
+			case "actions":
+				return ec.fieldContext_DataLayersManagement_actions(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DataLayersManagement", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getDataLayersManagement_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAdminProjects(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_getAdminProjects,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().GetAdminProjects(ctx, fc.Args["id"].(*int32), fc.Args["city"].(*string), fc.Args["district"].(*string), fc.Args["province"].(*string), fc.Args["latitude"].(*float64), fc.Args["longitude"].(*float64))
+		},
+		nil,
+		ec.marshalNAdminProjects2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAdminProjectsᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_getAdminProjects(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminProjects_id(ctx, field)
+			case "city":
+				return ec.fieldContext_AdminProjects_city(ctx, field)
+			case "district":
+				return ec.fieldContext_AdminProjects_district(ctx, field)
+			case "province":
+				return ec.fieldContext_AdminProjects_province(ctx, field)
+			case "address":
+				return ec.fieldContext_AdminProjects_address(ctx, field)
+			case "sizeSqm":
+				return ec.fieldContext_AdminProjects_sizeSqm(ctx, field)
+			case "latitude":
+				return ec.fieldContext_AdminProjects_latitude(ctx, field)
+			case "longitude":
+				return ec.fieldContext_AdminProjects_longitude(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminProjects", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAdminProjects_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -26251,6 +27453,110 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** object.gotpl ****************************
 
+var adminFarmListImplementors = []string{"AdminFarmList"}
+
+func (ec *executionContext) _AdminFarmList(ctx context.Context, sel ast.SelectionSet, obj *model.AdminFarmList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminFarmListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminFarmList")
+		case "id":
+			out.Values[i] = ec._AdminFarmList_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "groupName":
+			out.Values[i] = ec._AdminFarmList_groupName(ctx, field, obj)
+		case "address":
+			out.Values[i] = ec._AdminFarmList_address(ctx, field, obj)
+		case "numberOfFarms":
+			out.Values[i] = ec._AdminFarmList_numberOfFarms(ctx, field, obj)
+		case "numberOfWorkers":
+			out.Values[i] = ec._AdminFarmList_numberOfWorkers(ctx, field, obj)
+		case "owner":
+			out.Values[i] = ec._AdminFarmList_owner(ctx, field, obj)
+		case "actions":
+			out.Values[i] = ec._AdminFarmList_actions(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminProjectsImplementors = []string{"AdminProjects"}
+
+func (ec *executionContext) _AdminProjects(ctx context.Context, sel ast.SelectionSet, obj *model.AdminProjects) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminProjectsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminProjects")
+		case "id":
+			out.Values[i] = ec._AdminProjects_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "city":
+			out.Values[i] = ec._AdminProjects_city(ctx, field, obj)
+		case "district":
+			out.Values[i] = ec._AdminProjects_district(ctx, field, obj)
+		case "province":
+			out.Values[i] = ec._AdminProjects_province(ctx, field, obj)
+		case "address":
+			out.Values[i] = ec._AdminProjects_address(ctx, field, obj)
+		case "sizeSqm":
+			out.Values[i] = ec._AdminProjects_sizeSqm(ctx, field, obj)
+		case "latitude":
+			out.Values[i] = ec._AdminProjects_latitude(ctx, field, obj)
+		case "longitude":
+			out.Values[i] = ec._AdminProjects_longitude(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var areaProdOfImportantCropsImplementors = []string{"AreaProdOfImportantCrops"}
 
 func (ec *executionContext) _AreaProdOfImportantCrops(ctx context.Context, sel ast.SelectionSet, obj *model.AreaProdOfImportantCrops) graphql.Marshaler {
@@ -27246,6 +28552,55 @@ func (ec *executionContext) _DashboardPage(ctx context.Context, sel ast.Selectio
 	return out
 }
 
+var dataLayersManagementImplementors = []string{"DataLayersManagement"}
+
+func (ec *executionContext) _DataLayersManagement(ctx context.Context, sel ast.SelectionSet, obj *model.DataLayersManagement) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, dataLayersManagementImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DataLayersManagement")
+		case "id":
+			out.Values[i] = ec._DataLayersManagement_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._DataLayersManagement_name(ctx, field, obj)
+		case "type":
+			out.Values[i] = ec._DataLayersManagement_type(ctx, field, obj)
+		case "source":
+			out.Values[i] = ec._DataLayersManagement_source(ctx, field, obj)
+		case "status":
+			out.Values[i] = ec._DataLayersManagement_status(ctx, field, obj)
+		case "actions":
+			out.Values[i] = ec._DataLayersManagement_actions(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var distributionImprovedSeedsPunjabImplementors = []string{"DistributionImprovedSeedsPunjab"}
 
 func (ec *executionContext) _DistributionImprovedSeedsPunjab(ctx context.Context, sel ast.SelectionSet, obj *model.DistributionImprovedSeedsPunjab) graphql.Marshaler {
@@ -27905,6 +29260,8 @@ func (ec *executionContext) _GroundTruthingSurveyADB(ctx context.Context, sel as
 			out.Values[i] = ec._GroundTruthingSurveyADB_description(ctx, field, obj)
 		case "stage":
 			out.Values[i] = ec._GroundTruthingSurveyADB_stage(ctx, field, obj)
+		case "geom":
+			out.Values[i] = ec._GroundTruthingSurveyADB_geom(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -29443,6 +30800,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getGroundTruthingSurveyMap":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getGroundTruthingSurveyMap(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getKharifRabiIrrigatedCrop":
 			field := field
 
@@ -30110,6 +31489,72 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_validatePasswordResetToken(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAdminFarmList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAdminFarmList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getDataLayersManagement":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getDataLayersManagement(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAdminProjects":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAdminProjects(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -31260,6 +32705,114 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNAdminFarmList2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAdminFarmListᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminFarmList) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminFarmList2ᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAdminFarmList(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminFarmList2ᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAdminFarmList(ctx context.Context, sel ast.SelectionSet, v *model.AdminFarmList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminFarmList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNAdminProjects2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAdminProjectsᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AdminProjects) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNAdminProjects2ᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAdminProjects(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNAdminProjects2ᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAdminProjects(ctx context.Context, sel ast.SelectionSet, v *model.AdminProjects) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminProjects(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNAreaProdOfImportantCrops2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐAreaProdOfImportantCropsᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.AreaProdOfImportantCrops) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -32206,6 +33759,60 @@ func (ec *executionContext) marshalNDashboardPage2ᚖgraphqlᚑpostgresᚋgraph�
 		return graphql.Null
 	}
 	return ec._DashboardPage(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNDataLayersManagement2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐDataLayersManagementᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DataLayersManagement) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNDataLayersManagement2ᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐDataLayersManagement(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNDataLayersManagement2ᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐDataLayersManagement(ctx context.Context, sel ast.SelectionSet, v *model.DataLayersManagement) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DataLayersManagement(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNDistributionImprovedSeedsPunjab2ᚕᚖgraphqlᚑpostgresᚋgraphᚋmodelᚐDistributionImprovedSeedsPunjabᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.DistributionImprovedSeedsPunjab) graphql.Marshaler {
