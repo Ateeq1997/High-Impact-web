@@ -1,38 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { ChevronLeft, ChevronRight, Search, Trash2, Edit2, PlusCircle, X } from "lucide-react";
 import AdminDashHeader from "@/components/dashboard/AdminDashHeader";
 
-// Dummy data
-const farmsData = [
-  { id: 1, name: "Green Valley Farms", address: "Sector A, Mardan", farms: 5, workers: 20, owner: "FarmerA" },
-  { id: 2, name: "Blue Heights Agriculture", address: "Sector B, Peshawar", farms: 3, workers: 15, owner: "FarmerB" },
-  { id: 3, name: "Sunrise Villas Farms", address: "Sector C, Swat", farms: 4, workers: 12, owner: "FarmerA" },
-  { id: 4, name: "Dream Gardens Group", address: "Sector D, Charsadda", farms: 6, workers: 25, owner: "FarmerC" },
-  { id: 5, name: "Riverfront Farms", address: "Sector E, Mardan", farms: 2, workers: 10, owner: "FarmerD" },
-  { id: 6, name: "Golden Acres", address: "Sector F, Peshawar", farms: 7, workers: 30, owner: "FarmerA" },
-  { id: 7, name: "Sunset Orchards", address: "Sector G, Swat", farms: 5, workers: 18, owner: "FarmerB" },
-  { id: 8, name: "Emerald Fields", address: "Sector H, Charsadda", farms: 4, workers: 14, owner: "FarmerC" },
-  { id: 9, name: "Lakeside Farms", address: "Sector I, Mardan", farms: 3, workers: 11, owner: "FarmerD" },
-  { id: 10, name: "Platinum Gardens", address: "Sector J, Peshawar", farms: 6, workers: 22, owner: "FarmerA" },
-  { id: 11, name: "Maple Leaf Farms", address: "Sector K, Swat", farms: 2, workers: 9, owner: "FarmerB" },
-  { id: 12, name: "Silver Springs", address: "Sector L, Charsadda", farms: 5, workers: 17, owner: "FarmerC" },
-  { id: 13, name: "Royal Farms", address: "Sector M, Mardan", farms: 4, workers: 13, owner: "FarmerD" },
-  { id: 14, name: "Sunshine Group", address: "Sector N, Peshawar", farms: 7, workers: 28, owner: "FarmerA" },
-  { id: 15, name: "Green Meadows", address: "Sector O, Swat", farms: 3, workers: 10, owner: "FarmerB" },
-  { id: 16, name: "Hilltop Farms", address: "Sector P, Charsadda", farms: 6, workers: 24, owner: "FarmerC" },
-  { id: 17, name: "Valley View", address: "Sector Q, Mardan", farms: 2, workers: 8, owner: "FarmerD" },
-  { id: 18, name: "Orchard Lane", address: "Sector R, Peshawar", farms: 5, workers: 19, owner: "FarmerA" },
-  { id: 19, name: "Cedar Farms", address: "Sector S, Swat", farms: 4, workers: 16, owner: "FarmerB" },
-  { id: 20, name: "Pine Grove Group", address: "Sector T, Charsadda", farms: 7, workers: 32, owner: "FarmerC" },
-];
 
 export default function AdminFarmsPage() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const [farms, setFarms] = useState(farmsData);
+ const [farms, setFarms] = useState<any[]>([]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingFarm, setEditingFarm] = useState<any>(null);
@@ -60,24 +38,64 @@ export default function AdminFarmsPage() {
     setModalOpen(true);
   };
 
-  const handleSubmit = () => {
-    if (editingFarm) {
-      // Editing
-      setFarms((prev) =>
-        prev.map((f) => (f.id === editingFarm.id ? { ...f, ...formData } : f))
-      );
-    } else {
-      // Adding
-      setFarms((prev) => [{ id: Date.now(), ...formData }, ...prev]);
+const handleSubmit = async () => {
+  if (editingFarm) {
+    // Update farm
+    const res = await fetch("http://localhost:8080/admin/farms/update", {
+  method: "PUT",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ id: editingFarm.id, ...formData }),
+});
+
+
+    if (!res.ok) {
+      alert("Failed to update farm");
+      return;
     }
-    setModalOpen(false);
-  };
 
-  const deleteFarm = (id: number) => {
-    if (!confirm("Are you sure you want to delete this farm?")) return;
-    setFarms((prev) => prev.filter((f) => f.id !== id));
-  };
+    setFarms((prev) =>
+      prev.map((f) => (f.id === editingFarm.id ? { ...f, ...formData } : f))
+    );
+  }  else {
+  // Add farm
+  const res = await fetch("http://localhost:8080/admin/farms/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  });
 
+  if (!res.ok) {
+    alert("Failed to add farm");
+    return;
+  }
+
+  const newFarm = await res.json();
+
+  setFarms(prev => [newFarm, ...prev]);
+}
+
+  setModalOpen(false);
+};
+
+const deleteFarm = async (id: number) => {
+  if (!confirm("Are you sure you want to delete this farm?")) return;
+
+  const res = await fetch(`http://localhost:8080/admin/farms/delete?id=${id}`, {
+  method: "DELETE",
+});
+
+  if (!res.ok) {
+    alert("Failed to delete farm");
+    return;
+  }
+
+  setFarms((prev) => prev.filter((f) => f.id !== id));
+};
+useEffect(() => {
+  fetch("http://localhost:8080/admin/farms")
+    .then(res => res.json())
+    .then(data => setFarms(data));
+}, []);
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <AdminDashHeader />

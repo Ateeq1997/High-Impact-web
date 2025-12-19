@@ -5,29 +5,13 @@ import { useState, useEffect } from "react";
 import AdminDashHeader from "@/components/dashboard/AdminDashHeader";
 
 interface User {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: "farmer" | "admin";
   status: "active" | "inactive";
   joinedAt: string;
-  lastLogin: string;
 }
-
-const mockUsers: User[] = [
-  { id: "1", name: "Aqib Baloch", email: "aqib@example.com", role: "farmer", status: "active", joinedAt: "2025-01-15", lastLogin: "2025-11-25" },
-  { id: "2", name: "Admin User", email: "admin@example.com", role: "admin", status: "active", joinedAt: "2024-12-01", lastLogin: "2025-11-28" },
-  { id: "3", name: "Sara Khan", email: "sara@example.com", role: "farmer", status: "active", joinedAt: "2025-03-05", lastLogin: "2025-11-26" },
-  { id: "4", name: "Ali Raza", email: "ali@example.com", role: "farmer", status: "inactive", joinedAt: "2025-04-12", lastLogin: "2025-11-10" },
-  { id: "5", name: "John Admin", email: "john.admin@example.com", role: "admin", status: "active", joinedAt: "2025-05-20", lastLogin: "2025-11-27" },
-  { id: "6", name: "Maryam Farmer", email: "maryam.farmer@example.com", role: "farmer", status: "active", joinedAt: "2025-06-01", lastLogin: "2025-11-29" },
-  { id: "7", name: "Zeeshan Admin", email: "zeeshan.admin@example.com", role: "admin", status: "inactive", joinedAt: "2025-07-15", lastLogin: "2025-11-20" },
-  { id: "8", name: "Bilal Farmer", email: "bilal.farmer@example.com", role: "farmer", status: "inactive", joinedAt: "2025-08-10", lastLogin: "2025-11-18" },
-  { id: "9", name: "Fatima Admin", email: "fatima.admin@example.com", role: "admin", status: "active", joinedAt: "2025-09-05", lastLogin: "2025-11-30" },
-  { id: "10", name: "Imran Farmer", email: "imran.farmer@example.com", role: "farmer", status: "active", joinedAt: "2025-10-12", lastLogin: "2025-11-22" },
-  { id: "11", name: "Sadia Admin", email: "sadia.admin@example.com", role: "admin", status: "inactive", joinedAt: "2025-11-01", lastLogin: "2025-11-15" },
-  { id: "12", name: "Usman Farmer", email: "usman.farmer@example.com", role: "farmer", status: "active", joinedAt: "2025-11-10", lastLogin: "2025-11-25" },
-];
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -37,13 +21,18 @@ export default function UserManagement() {
   const [newUserName, setNewUserName] = useState("");
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState<"farmer" | "admin">("farmer");
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [viewUser, setViewUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    // Replace with API call
-    setUsers(mockUsers);
-  }, []);
+useEffect(() => {
+  fetch("http://localhost:8080/admin/users")
+    .then(res => res.json())
+    .then(data => {
+      console.log("USERS FROM API:", data);
+      setUsers(data);
+    });
+}, []);
+
 
   const filteredUsers = users.filter(
     (user) =>
@@ -52,31 +41,38 @@ export default function UserManagement() {
         user.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const toggleStatus = (id: string) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === id
-          ? { ...user, status: user.status === "active" ? "inactive" : "active" }
-          : user
-      )
-    );
-  };
+const toggleStatus = (id: number) => {
+  setUsers((prev) =>
+    prev.map((user) =>
+      user.id === id
+        ? { ...user, status: user.status === "active" ? "inactive" : "active" }
+        : user
+    )
+  );
+};
 
-  const handleChangeRole = (id: string, newRole: "farmer" | "admin") => {
-    setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, role: newRole } : user)));
-  };
+
+
+
+const handleChangeRole = (id: number, newRole: "farmer" | "admin") => {
+  setUsers((prev) =>
+    prev.map((user) =>
+      user.id === id ? { ...user, role: newRole } : user
+    )
+  );
+};
+
 
   const handleAddUser = () => {
     if (!newUserName || !newUserEmail) return;
 
     const newUser: User = {
-      id: (users.length + 1).toString(),
+      id: users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1,
       name: newUserName,
       email: newUserEmail,
       role: newUserRole,
       status: "active",
       joinedAt: new Date().toISOString().split("T")[0],
-      lastLogin: "",
     };
     setUsers([...users, newUser]);
     setNewUserName("");
@@ -85,11 +81,12 @@ export default function UserManagement() {
     setShowAddModal(false);
   };
 
-  const toggleSelectUser = (id: string) => {
-    if (selectedUsers.includes(id)) {
-      setSelectedUsers(selectedUsers.filter((uid) => uid !== id));
+  const toggleSelectUser = (id: number | string) => {
+    const numId = typeof id === "string" ? parseInt(id, 10) : id;
+    if (selectedUsers.includes(numId)) {
+      setSelectedUsers(selectedUsers.filter((uid) => uid !== numId));
     } else {
-      setSelectedUsers([...selectedUsers, id]);
+      setSelectedUsers([...selectedUsers, numId]);
     }
   };
 
@@ -109,8 +106,8 @@ export default function UserManagement() {
   const exportCSV = () => {
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      ["Name,Email,Role,Status,Joined At,Last Login"]
-        .concat(users.map((u) => `${u.name},${u.email},${u.role},${u.status},${u.joinedAt},${u.lastLogin}`))
+      ["Name,Email,Role,Status,Joined At"]
+        .concat(users.map((u) => `${u.name},${u.email},${u.role},${u.status},${u.joinedAt}`))
         .join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -198,7 +195,6 @@ export default function UserManagement() {
                 <th className="px-4 py-2 text-left">Role</th>
                 <th className="px-4 py-2 text-left">Status</th>
                 <th className="px-4 py-2 text-left">Joined At</th>
-                <th className="px-4 py-2 text-left">Last Login</th>
                 <th className="px-4 py-2 text-left">Actions</th>
               </tr>
             </thead>
@@ -225,16 +221,17 @@ export default function UserManagement() {
                     </select>
                   </td>
                   <td className="px-4 py-2">
-                    <span
-                      className={`px-2 py-1 rounded text-white ${
-                        user.status === "active" ? "bg-green-500" : "bg-red-500"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
+     <span
+  className={`px-2 py-1 rounded text-white ${
+    user.status === "active" ? "bg-green-500" : "bg-red-500"
+  }`}
+>
+  {user.status}
+</span>
+
+
                   </td>
                   <td className="px-4 py-2">{user.joinedAt}</td>
-                  <td className="px-4 py-2">{user.lastLogin || "-"}</td>
                   <td className="px-4 py-2 flex gap-2">
                     <button
                       className={`px-3 py-1 rounded ${
@@ -313,7 +310,6 @@ export default function UserManagement() {
             <p><strong>Role:</strong> {viewUser.role}</p>
             <p><strong>Status:</strong> {viewUser.status}</p>
             <p><strong>Joined At:</strong> {viewUser.joinedAt}</p>
-            <p><strong>Last Login:</strong> {viewUser.lastLogin || "-"}</p>
             <p><strong>Total Parcels:</strong> 5</p>
             <p><strong>Active Projects:</strong> 2</p>
             <div className="flex justify-end mt-4">

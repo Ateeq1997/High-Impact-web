@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	_ "github.com/lib/pq"
 
@@ -22,12 +23,13 @@ const defaultPort = "8080"
 // ----------- CORS MIDDLEWARE -----------
 func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 
 		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
+			w.WriteHeader(http.StatusOK)
 			return
 		}
 
@@ -35,7 +37,7 @@ func enableCORS(next http.Handler) http.Handler {
 	})
 }
 
-// ------------- SIGNUP HANDLER -------------
+// SIGNUP HANDLER function
 func signupHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -86,6 +88,7 @@ func signupHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+// Login handler function
 func loginHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -149,6 +152,376 @@ func loginHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+// UserMManagement page handler function
+func adminUsersHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		rows, err := db.Query(`
+			SELECT
+				"ID",
+				"Username",
+				"Email",
+				"Role",
+				"Status",
+				"Joined"
+			FROM user_account_data
+			ORDER BY "Joined" DESC
+		`)
+		if err != nil {
+			log.Println("ADMIN USERS QUERY ERROR:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		type User struct {
+			ID       int    `json:"id"`
+			Name     string `json:"name"`
+			Email    string `json:"email"`
+			Role     string `json:"role"`
+			Status   string `json:"status"`
+			JoinedAt string `json:"joinedAt"`
+		}
+
+		var users []User
+
+		for rows.Next() {
+			var (
+				id       int
+				username string
+				email    string
+				role     string
+				status   bool
+				joined   string
+			)
+
+			err := rows.Scan(&id, &username, &email, &role, &status, &joined)
+			if err != nil {
+				log.Println("ADMIN USER SCAN ERROR:", err)
+				continue
+			}
+
+			users = append(users, User{
+				ID:       id,
+				Name:     username,
+				Email:    email,
+				Role:     role,
+				Status:   map[bool]string{true: "active", false: "inactive"}[status],
+				JoinedAt: joined[:10], // YYYY-MM-DD
+			})
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(users)
+	}
+}
+
+// Update userin usermanagement by admin function
+func updateUserHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		type UpdateUser struct {
+			ID     int    `json:"id"`
+			Role   string `json:"role"`
+			Status bool   `json:"status"`
+		}
+
+		var input UpdateUser
+		json.NewDecoder(r.Body).Decode(&input)
+
+		_, err := db.Exec(`
+  UPDATE user_account_data
+  SET "Role" = $1, "Status" = $2
+  WHERE "ID" = $3
+`, input.Role, input.Status, input.ID)
+
+		if err != nil {
+			log.Println("UPDATE USER ERROR:", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+// Sub function for usermanagement page
+func updateUserRoleHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		type Input struct {
+			ID   int    `json:"id"`
+			Role string `json:"role"`
+		}
+
+		var input Input
+		json.NewDecoder(r.Body).Decode(&input)
+
+		_, err := db.Exec(`
+  UPDATE user_account_data
+  SET "Role" = $1
+  WHERE "ID" = $2
+`, input.Role, input.ID)
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]string{"message": "Role updated"})
+	}
+}
+
+// sub function for usermanagement page
+func updateUserStatusHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		type Input struct {
+			ID     int  `json:"id"`
+			Status bool `json:"status"`
+		}
+
+		var input Input
+		json.NewDecoder(r.Body).Decode(&input)
+
+		_, err := db.Exec(`
+  UPDATE user_account_data
+  SET "Status" = $1
+  WHERE "ID" = $2
+`, input.Status, input.ID)
+
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]string{"message": "Status updated"})
+	}
+}
+
+// ADMIN FARM LIST handler function
+func adminFarmListHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		rows, err := db.Query(`
+			SELECT
+				id,
+				group_name,
+				address,
+				number_of_farms,
+				number_of_workers,
+				owner
+			FROM admin_farm_list
+			ORDER BY id DESC
+		`)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		defer rows.Close()
+
+		type Farm struct {
+			ID      int    `json:"id"`
+			Name    string `json:"name"`
+			Address string `json:"address"`
+			Farms   int    `json:"farms"`
+			Workers int    `json:"workers"`
+			Owner   string `json:"owner"`
+		}
+
+		var farms []Farm
+
+		for rows.Next() {
+			var f Farm
+			err := rows.Scan(
+				&f.ID,
+				&f.Name,
+				&f.Address,
+				&f.Farms,
+				&f.Workers,
+				&f.Owner,
+			)
+			if err != nil {
+				continue
+			}
+			farms = append(farms, f)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(farms)
+	}
+}
+
+// ADD ADMIN FARM HANDLER function
+func addAdminFarmHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		if r.Method != http.MethodPost {
+			http.Error(w, "Only POST allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		type Input struct {
+			Name    string `json:"name"`
+			Address string `json:"address"`
+			Farms   int    `json:"farms"`
+			Workers int    `json:"workers"`
+			Owner   string `json:"owner"`
+		}
+
+		var input Input
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+			return
+		}
+
+		var insertedID int
+
+		err := db.QueryRow(`
+			INSERT INTO admin_farm_list
+			(group_name, address, number_of_farms, number_of_workers, owner)
+			VALUES ($1, $2, $3, $4, $5)
+			RETURNING id
+		`,
+			input.Name,
+			input.Address,
+			input.Farms,
+			input.Workers,
+			input.Owner,
+		).Scan(&insertedID)
+
+		if err != nil {
+			log.Println("ADD FARM ERROR:", err)
+			http.Error(w, "Failed to add farm", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":      insertedID,
+			"name":    input.Name,
+			"address": input.Address,
+			"farms":   input.Farms,
+			"workers": input.Workers,
+			"owner":   input.Owner,
+		})
+	}
+}
+
+// UPDATE ADMIN FARM HANDLER function
+// Update a farm in admin_farm_list
+// UPDATE FARM
+func updateAdminFarmHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPut {
+			http.Error(w, "Only PUT allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		type Input struct {
+			ID      int    `json:"id"`
+			Name    string `json:"name"`
+			Address string `json:"address"`
+			Farms   int    `json:"farms"`
+			Workers int    `json:"workers"`
+			Owner   string `json:"owner"`
+		}
+
+		var input Input
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+
+		_, err := db.Exec(`
+			UPDATE admin_farm_list
+			SET group_name=$1, address=$2, number_of_farms=$3, number_of_workers=$4, owner=$5
+			WHERE id=$6
+		`, input.Name, input.Address, input.Farms, input.Workers, input.Owner, input.ID)
+
+		if err != nil {
+			log.Println("UPDATE FARM ERROR:", err)
+			http.Error(w, "Failed to update farm", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"message": "Farm updated"})
+	}
+}
+
+// DELETE FARM
+func deleteAdminFarmHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete {
+			http.Error(w, "Only DELETE allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		idStr := r.URL.Query().Get("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			http.Error(w, "Invalid id", http.StatusBadRequest)
+			return
+		}
+
+		_, err = db.Exec(`DELETE FROM admin_farm_list WHERE id=$1`, id)
+		if err != nil {
+			log.Println("DELETE FARM ERROR:", err)
+			http.Error(w, "Failed to delete farm", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"message": "Farm deleted"})
+	}
+}
+
+// ADMIN FARM LIST handler function
+func adminFarmsHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		rows, err := db.Query(`
+			SELECT 
+				id,
+				group_name,
+				address,
+				number_of_farms,
+				number_of_workers,
+				owner
+			FROM admin_farm_list
+			ORDER BY id DESC
+		`)
+		if err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		defer rows.Close()
+
+		type Farm struct {
+			ID      int    `json:"id"`
+			Name    string `json:"name"`
+			Address string `json:"address"`
+			Farms   int    `json:"farms"`
+			Workers int    `json:"workers"`
+			Owner   string `json:"owner"`
+		}
+
+		var farms []Farm
+
+		for rows.Next() {
+			var f Farm
+			rows.Scan(&f.ID, &f.Name, &f.Address, &f.Farms, &f.Workers, &f.Owner)
+			farms = append(farms, f)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(farms)
+	}
+}
+
+// map district handler function
 func districtsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -221,6 +594,7 @@ func districtsHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+// farmer farm list handler function
 func farmsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -267,6 +641,7 @@ func farmsHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+// farmer project board handler function
 func projectsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -372,9 +747,16 @@ func main() {
 	mux.HandleFunc("/districts", districtsHandler(db))
 	mux.HandleFunc("/farms", farmsHandler(db))
 	mux.HandleFunc("/projects", projectsHandler(db))
+	mux.HandleFunc("/admin/users", adminUsersHandler(db))
+	mux.HandleFunc("/admin/user/role", updateUserRoleHandler(db))
+	mux.HandleFunc("/admin/user/status", updateUserStatusHandler(db))
+	mux.HandleFunc("/admin/users/update", updateUserHandler(db))
+	mux.HandleFunc("/admin/farms/add", addAdminFarmHandler(db))
+	mux.HandleFunc("/admin/farms", adminFarmsHandler(db))
+	mux.HandleFunc("/admin/farms/update", updateAdminFarmHandler(db))
+	mux.HandleFunc("/admin/farms/delete", deleteAdminFarmHandler(db))
 
-	handlerWithCORS := enableCORS(mux)
+	log.Println("Server running on port", port)
+	http.ListenAndServe(":"+port, enableCORS(mux))
 
-	log.Printf("Server running at http://localhost:%s/", port)
-	log.Fatal(http.ListenAndServe(":"+port, handlerWithCORS))
 }
