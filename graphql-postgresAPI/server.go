@@ -521,6 +521,120 @@ func adminFarmsHandler(db *sql.DB) http.HandlerFunc {
 	}
 }
 
+// Admin group list handler function
+// Admin group list handler function
+func adminGroupsHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		rows, err := db.Query(`
+			SELECT
+				"ID",
+				"Username",
+				"Email",
+				"Phone",
+				"Role",
+				"Status",
+				"Joined"
+			FROM group_list
+			ORDER BY "ID" ASC
+		`)
+		if err != nil {
+			log.Println("GROUP LIST ERROR:", err)
+			http.Error(w, "Failed to read group data", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		type Group struct {
+			ID     int    `json:"id"`
+			Name   string `json:"name"`
+			Email  string `json:"email"`
+			Phone  string `json:"phone"`
+			Role   string `json:"role"`
+			Status string `json:"status"`
+			Joined string `json:"joined"`
+		}
+
+		var groups []Group
+
+		for rows.Next() {
+			var (
+				id     int
+				name   string
+				email  string
+				phone  string
+				role   string
+				status bool
+				joined string
+			)
+
+			if err := rows.Scan(&id, &name, &email, &phone, &role, &status, &joined); err != nil {
+				log.Println("SCAN ERROR:", err)
+				continue
+			}
+
+			groups = append(groups, Group{
+				ID:     id,
+				Name:   name,
+				Email:  email,
+				Phone:  phone,
+				Role:   role,
+				Status: map[bool]string{true: "Active", false: "Inactive"}[status],
+				Joined: joined, // ✅ NO slicing
+			})
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(groups)
+	}
+}
+
+// Admin projects list handler
+func adminProjectsHandler(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		rows, err := db.Query(`
+    SELECT 
+        "id", "city", "district", "province", "address", "size_sqm", "latitude", "longitude", "status"
+    FROM admin_projects
+    ORDER BY "id" ASC
+`)
+
+		if err != nil {
+			http.Error(w, "Failed to fetch projects", http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		type Project struct {
+			ID        int     `json:"id"`
+			City      string  `json:"city"`
+			District  string  `json:"district"`
+			Province  string  `json:"province"`
+			Address   string  `json:"address"`
+			SizeSqm   float64 `json:"size_sqm"`
+			Latitude  float64 `json:"latitude"`
+			Longitude float64 `json:"longitude"`
+			Status    string  `json:"status"`
+		}
+
+		var projects []Project
+		for rows.Next() {
+			var p Project
+			err := rows.Scan(&p.ID, &p.City, &p.District, &p.Province, &p.Address, &p.SizeSqm, &p.Latitude, &p.Longitude, &p.Status)
+
+			if err != nil {
+				log.Println("Error scanning project:", err)
+				continue
+			}
+			projects = append(projects, p)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*") // for frontend dev
+		json.NewEncoder(w).Encode(projects)
+	}
+}
+
 // map district handler function
 func districtsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -755,6 +869,8 @@ func main() {
 	mux.HandleFunc("/admin/farms", adminFarmsHandler(db))
 	mux.HandleFunc("/admin/farms/update", updateAdminFarmHandler(db))
 	mux.HandleFunc("/admin/farms/delete", deleteAdminFarmHandler(db))
+	mux.HandleFunc("/admin/groups", adminGroupsHandler(db))
+	mux.HandleFunc("/admin/projects", adminProjectsHandler(db))
 
 	log.Println("Server running on port", port)
 	http.ListenAndServe(":"+port, enableCORS(mux))
