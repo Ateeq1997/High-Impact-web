@@ -1,57 +1,64 @@
 // app/dashboard/admin/DataLayers.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import AdminDashHeader from "@/components/dashboard/AdminDashHeader";
 interface Layer {
-  id: string;
+  id: number;
   name: string;
   type: "raster" | "vector";
   source: string;
   status: "active" | "inactive";
 }
 
-const initialLayers: Layer[] = [
-  { id: "1", name: "NDVI Layer", type: "raster", source: "s3://highimpact/tiles/ndvi", status: "active" },
-  { id: "2", name: "Rainfall Layer", type: "raster", source: "s3://highimpact/tiles/rainfall", status: "active" },
-  { id: "3", name: "Soil Type Layer", type: "vector", source: "s3://highimpact/tiles/soil", status: "inactive" },
-  { id: "4", name: "Temperature Layer", type: "raster", source: "s3://highimpact/tiles/temp", status: "active" },
-  { id: "5", name: "Elevation Layer", type: "raster", source: "s3://highimpact/tiles/elevation", status: "inactive" },
-  { id: "6", name: "Land Use Layer", type: "vector", source: "s3://highimpact/tiles/landuse", status: "active" },
-  { id: "7", name: "Water Bodies Layer", type: "vector", source: "s3://highimpact/tiles/water", status: "inactive" },
-  { id: "8", name: "Crop Type Layer", type: "vector", source: "s3://highimpact/tiles/crop", status: "active" },
-  { id: "9", name: "Humidity Layer", type: "raster", source: "s3://highimpact/tiles/humidity", status: "inactive" },
-  { id: "10", name: "Vegetation Layer", type: "raster", source: "s3://highimpact/tiles/vegetation", status: "active" },
-];
-
 export default function DataLayers() {
-  const [layers, setLayers] = useState<Layer[]>(initialLayers);
+  const [layers, setLayers] = useState<Layer[]>([]);
+
+useEffect(() => {
+  fetch("http://localhost:8080/admin/data-layers")
+    .then(res => res.json())
+    .then(data => setLayers(data))
+    .catch(console.error);
+}, []);
+
+
   const [newLayerName, setNewLayerName] = useState("");
   const [newLayerType, setNewLayerType] = useState<"raster" | "vector">("raster");
   const [newLayerSource, setNewLayerSource] = useState("");
 
-  const addLayer = () => {
-    if (!newLayerName || !newLayerSource) return;
+const addLayer = async () => {
+  if (!newLayerName || !newLayerSource) return;
 
-    const newLayer: Layer = {
-      id: (layers.length + 1).toString(),
+  const res = await fetch("http://localhost:8080/admin/data-layers/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       name: newLayerName,
       type: newLayerType,
       source: newLayerSource,
-      status: "inactive",
-    };
-    setLayers([...layers, newLayer]);
-    setNewLayerName("");
-    setNewLayerSource("");
-  };
+    }),
+  });
 
-  const toggleStatus = (id: string) => {
-    setLayers((prev) =>
-      prev.map((layer) =>
-        layer.id === id ? { ...layer, status: layer.status === "active" ? "inactive" : "active" } : layer
-      )
-    );
-  };
+  if (!res.ok) {
+    alert("Failed to add layer");
+    return;
+  }
+
+  // Reload layers from DB
+  const updated = await fetch("http://localhost:8080/admin/data-layers").then(r => r.json());
+  setLayers(updated);
+
+  setNewLayerName("");
+  setNewLayerSource("");
+};
+
+const toggleStatus = async (id: number) => {
+  await fetch(`http://localhost:8080/admin/data-layers/toggle?id=${id}`, {
+    method: "PUT",
+  });
+  const updated = await fetch("http://localhost:8080/admin/data-layers").then(r => r.json());
+  setLayers(updated);
+};
 
   return (
     <><AdminDashHeader />
