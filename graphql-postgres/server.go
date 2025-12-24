@@ -23,6 +23,7 @@ func main() {
 	}
 
 	db := config.NewDB()
+
 	defer db.Close()
 
 	srv := handler.NewDefaultServer(

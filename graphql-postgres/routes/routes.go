@@ -12,6 +12,7 @@ func RegisterRoutes(mux *http.ServeMux, db *sql.DB) {
 
 	// ===== MAPS =====
 	mux.HandleFunc("/districts", handlers.DistrictsHandler(db))
+	mux.HandleFunc("/survey-points", handlers.SurveyPointsHandler(db))
 
 	// ===== FARMS (USER) =====
 	mux.HandleFunc("/farms", handlers.FarmsHandler(db))
@@ -45,4 +46,8 @@ func RegisterRoutes(mux *http.ServeMux, db *sql.DB) {
 	// ===== AUTH =====
 	mux.HandleFunc("/signup", handlers.SignupHandler(db))
 	mux.HandleFunc("/login", handlers.LoginHandler(db))
+}
+
+func surveyPointsHandler(db *sql.DB) func(http.ResponseWriter, *http.Request) {
+	panic("unimplemented")
 }
