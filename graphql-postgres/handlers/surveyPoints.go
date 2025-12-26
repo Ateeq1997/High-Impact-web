@@ -10,6 +10,7 @@ import (
 func SurveyPointsHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		// Remove LIMIT to fetch ALL points
 		rows, err := db.Query(`
 			SELECT
 				"ID",
@@ -27,7 +28,6 @@ func SurveyPointsHandler(db *sql.DB) http.HandlerFunc {
 				ST_AsGeoJSON(ST_Force2D("geom")) AS geometry
 			FROM public."ground_truthing_survey_ADB"
 			WHERE "geom" IS NOT NULL
-			LIMIT 500
 		`)
 		if err != nil {
 			log.Println("SURVEY QUERY ERROR:", err)
@@ -42,7 +42,8 @@ func SurveyPointsHandler(db *sql.DB) http.HandlerFunc {
 			Properties map[string]interface{} `json:"properties"`
 		}
 
-		features := make([]Feature, 0, 500)
+		// Pre-allocate with estimated capacity
+		features := make([]Feature, 0, 140000)
 
 		for rows.Next() {
 			var (
@@ -104,6 +105,8 @@ func SurveyPointsHandler(db *sql.DB) http.HandlerFunc {
 				Properties: props,
 			})
 		}
+
+		log.Printf("Returning %d survey points", len(features))
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
