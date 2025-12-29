@@ -17,3 +17,16 @@ func EnableCORS(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
+/*
+ Example usage (in your main package):
+
+ // import (
+ //   "net/http"
+ //   "your/module/path/middleware"
+ //   "your/module/path/handlers"
+ // )
+
+ // http.Handle("/account/me", middleware.EnableCORS(handlers.GetAccountHandler(db)))
+
+*/

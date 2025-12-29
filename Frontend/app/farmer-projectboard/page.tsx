@@ -76,17 +76,17 @@ export default function ProjectsBoardPage() {
         };
 
         data.forEach((p: any) => {
-          if (grouped[p.status]) {
-          grouped[p.status].push({
-  id: String(p.id),
-  name: p.name,
-  location: p.location,
-  lat: p.lat,
-  lng: p.lng,
-  size: p.size,
-});
+         if (grouped[p.status]) {
+  grouped[p.status].push({
+    id: String(p.id),
+    name: p.name,
+    location: p.location,
+    lat: p.lat,
+    lng: p.lng,
+    size: p.size,
+  });
+}
 
-          }
         });
 
         setColumns(grouped);
