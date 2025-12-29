@@ -53,6 +53,16 @@ func SignupHandler(db *sql.DB) http.HandlerFunc {
 
 func LoginHandler(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Enable CORS
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Header().Set("Content-Type", "application/json")
+
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
 
 		var input struct {
 			Email    string `json:"email"`
@@ -60,9 +70,12 @@ func LoginHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			log.Printf("❌ ERROR: Invalid JSON: %v", err)
 			http.Error(w, "Invalid JSON", http.StatusBadRequest)
 			return
 		}
+
+		log.Printf("🔍 LOGIN ATTEMPT: %s", input.Email)
 
 		var hash, username, role string
 		var status bool
@@ -73,24 +86,34 @@ func LoginHandler(db *sql.DB) http.HandlerFunc {
 		`, input.Email).Scan(&hash, &username, &role, &status)
 
 		if err != nil {
+			log.Printf("❌ ERROR: User not found: %s", input.Email)
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
 
 		if bcrypt.CompareHashAndPassword([]byte(hash), []byte(input.Password)) != nil {
+			log.Printf("❌ ERROR: Invalid password for: %s", input.Email)
 			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 			return
 		}
 
 		if !status {
+			log.Printf("❌ ERROR: Account disabled: %s", input.Email)
 			http.Error(w, "Account disabled", http.StatusForbidden)
 			return
 		}
 
-		json.NewEncoder(w).Encode(map[string]string{
+		// Create response with explicit fields
+		response := map[string]string{
 			"message":  "Login successful",
 			"username": username,
+			"email":    input.Email,
 			"role":     role,
-		})
+		}
+
+		log.Printf("✅ LOGIN SUCCESS: %s (Role: %s)", input.Email, role)
+		log.Printf("📤 SENDING RESPONSE: %+v", response)
+
+		json.NewEncoder(w).Encode(response)
 	}
 }
